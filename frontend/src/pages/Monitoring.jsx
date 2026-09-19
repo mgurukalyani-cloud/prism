@@ -52,22 +52,23 @@ export default function Monitoring() {
 
   // Real-Time Motion Detection & Risk State
   const [currentRisk, setCurrentRisk] = useState('SAFE');
-  const [currentRiskScore, setCurrentRiskScore] = useState(8); // 0 - 100
+  const [currentRiskScore, setCurrentRiskScore] = useState(0); // 0 - 100 (clean 0 before playback)
   const [confidence, setConfidence] = useState(96.4);
   const [motionEnergy, setMotionEnergy] = useState(0);
   const [motionVelocity, setMotionVelocity] = useState(0);
   const [motionDetected, setMotionDetected] = useState(false);
-  const [detectedActivity, setDetectedActivity] = useState('Normal Gait / Stable Activity');
-  const [motionStatus, setMotionStatus] = useState('Baseline Optical Scan (Motion Tracking Active)');
+  const [detectedActivity, setDetectedActivity] = useState('Ready for Analysis (Paused at 00:00)');
+  const [motionStatus, setMotionStatus] = useState('Baseline Optical Scan (Ready)');
   const [maxRiskDetected, setMaxRiskDetected] = useState('SAFE');
   const [detectedEvents, setDetectedEvents] = useState([]);
   const [finalResult, setFinalResult] = useState(null);
   const [activeScenarioKey, setActiveScenarioKey] = useState('breach');
   const [soundAlertEnabled, setSoundAlertEnabled] = useState(true);
+  const [analyzedHeatmap, setAnalyzedHeatmap] = useState([]);
 
-  // Historical Risk Timeline points for live graph: [{ t: 0, score: 8, label: 'SAFE' }, ...]
+  // Historical Risk Timeline points for live graph: [{ t: 0, score: 0, label: 'SAFE' }, ...]
   const [riskHistory, setRiskHistory] = useState([
-    { t: 0, score: 8, level: 'SAFE' }
+    { t: 0, score: 0, level: 'SAFE' }
   ]);
 
   const videoRef = useRef(null);
@@ -82,35 +83,55 @@ export default function Monitoring() {
   const lastEventLoggedTimeRef = useRef(0);
   const lastSirenTimeRef = useRef(0);
 
-  // Preset demonstration scenarios (Designed with rise and recovery to demonstrate true non-monotonic risk)
+  // Preset demonstration scenarios (Accurate scenario-specific dynamic risk segments)
   const presetScenarios = {
     breach: {
       name: 'Demonstration 1: Perimeter Highway Boundary Approach',
       targetToken: 'C-200',
       category: 'Child / Student',
       finalVerdict: 'High Risk Traversal at 00:16 (Score: 78) — Restabilized safely at 00:23',
-      finalLevel: 'HIGH RISK'
+      finalLevel: 'HIGH RISK',
+      segments: [
+        { start: 0, end: 8, pct: 26.7, level: 'SAFE', bg: 'bg-emerald-500', label: '00:00 - 00:08: Normal Walking in Safe Zone (Score: 6-10/100)' },
+        { start: 8, end: 14, pct: 20.0, level: 'WARNING', bg: 'bg-amber-400', label: '00:08 - 00:14: Accelerating towards Highway Buffer (Score: 28-48/100)' },
+        { start: 14, end: 21, pct: 23.3, level: 'HIGH RISK', bg: 'bg-rose-500', label: '00:14 - 00:21: Perimeter Gate Breach (Score: 72-84/100)' },
+        { start: 21, end: 30, pct: 30.0, level: 'SAFE', bg: 'bg-emerald-500', label: '00:21 - 00:30: Escorted Back / Restabilized Safe (Score: 8-12/100)' },
+      ]
     },
     fall: {
       name: 'Demonstration 2: Playground Turf Fall & Posture Collapse',
       targetToken: 'C-021',
       category: 'Child / Student',
       finalVerdict: 'Critical Risk: Sudden Collapse at 00:15 (Score: 94) — Medical team attended at 00:22',
-      finalLevel: 'CRITICAL RISK'
+      finalLevel: 'CRITICAL RISK',
+      segments: [
+        { start: 0, end: 9, pct: 30.0, level: 'SAFE', bg: 'bg-emerald-500', label: '00:00 - 00:09: Safe Recreational Motion (Score: 6-10/100)' },
+        { start: 9, end: 13, pct: 13.3, level: 'WARNING', bg: 'bg-amber-400', label: '00:09 - 00:13: Unsteady Stumble (Score: 25-45/100)' },
+        { start: 13, end: 19, pct: 20.0, level: 'CRITICAL RISK', bg: 'bg-rose-600', label: '00:13 - 00:19: Sudden Posture Collapse & Fall (Score: 88-96/100)' },
+        { start: 19, end: 30, pct: 36.7, level: 'SAFE', bg: 'bg-emerald-500', label: '00:19 - 00:30: Attended by Staff / Restabilized Safe (Score: 8-12/100)' },
+      ]
     },
     senior: {
       name: 'Demonstration 3: Senior Citizen Slow Stumble & Restabilization',
       targetToken: 'SR-301',
       category: 'Senior Citizen',
       finalVerdict: 'Warning: Unsteady Gait at 00:12 (Score: 48) — Subject safely seated at 00:19',
-      finalLevel: 'WARNING'
+      finalLevel: 'WARNING',
+      segments: [
+        { start: 0, end: 10, pct: 33.3, level: 'SAFE', bg: 'bg-emerald-500', label: '00:00 - 00:10: Senior Baseline Walking (Score: 6-10/100)' },
+        { start: 10, end: 17, pct: 23.3, level: 'WARNING', bg: 'bg-amber-400', label: '00:10 - 00:17: Tremor / Gait Hesitation (Score: 38-48/100)' },
+        { start: 17, end: 30, pct: 43.4, level: 'SAFE', bg: 'bg-emerald-500', label: '00:17 - 00:30: Safely Seated on Bench / Safe (Score: 7-11/100)' },
+      ]
     },
     normal: {
       name: 'Demonstration 4: Academic Corridor Supervised Walking',
       targetToken: 'P-101',
       category: 'Adult / Staff',
       finalVerdict: 'Safe: Standard Campus Operations Maintained (Score: 8/100, All Clear)',
-      finalLevel: 'SAFE'
+      finalLevel: 'SAFE',
+      segments: [
+        { start: 0, end: 30, pct: 100.0, level: 'SAFE', bg: 'bg-emerald-500', label: '00:00 - 00:30: Standard Supervised Walking (Safe Throughout, Score: 5-10/100)' },
+      ]
     }
   };
 
@@ -167,35 +188,30 @@ export default function Monitoring() {
       setVideoSource(url);
       setVideoName(file.name);
       setCurrentTime(0);
-      setIsPlaying(true);
+      setIsPlaying(false);
       setFinalResult(null);
       setMaxRiskDetected('SAFE');
-      setCurrentRiskScore(8);
+      setCurrentRiskScore(0);
       setCurrentRisk('SAFE');
+      setMotionEnergy(0);
+      setMotionVelocity(0);
+      setMotionDetected(false);
+      setDetectedActivity('Video Ready • Click Play to Start Real-Time Analysis');
       smoothedBoxRef.current = null;
       prevFrameDataRef.current = null;
       prevCentroidRef.current = null;
       motionHistoryRef.current = [];
-      setRiskHistory([{ t: 0, score: 8, level: 'SAFE' }]);
+      setRiskHistory([{ t: 0, score: 0, level: 'SAFE' }]);
+      setAnalyzedHeatmap([]);
 
       setDetectedEvents([
         {
           time: '00:00',
-          text: `Video loaded: "${file.name}". Dynamic motion differencing active.`,
+          text: `Video loaded: "${file.name}". Click Play or scrub timeline to begin analysis.`,
           risk: 'SAFE',
-          score: 8
+          score: 0
         }
       ]);
-
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.currentTime = 0;
-          videoRef.current.muted = true;
-          videoRef.current.play().catch((err) => {
-            console.warn('Playback notice:', err);
-          });
-        }
-      }, 150);
     }
   };
 
@@ -218,17 +234,21 @@ export default function Monitoring() {
   const handleReset = () => {
     if (videoSource && videoRef.current) {
       videoRef.current.currentTime = 0;
-      videoRef.current.play().catch((err) => console.warn('Play notice:', err));
+      videoRef.current.pause();
     }
     setCurrentTime(0);
-    setIsPlaying(true);
+    setIsPlaying(false);
     setFinalResult(null);
     setMaxRiskDetected('SAFE');
     setCurrentRisk('SAFE');
-    setCurrentRiskScore(8);
-    setDetectedActivity('Normal Gait / Stable Activity');
+    setCurrentRiskScore(0);
+    setMotionEnergy(0);
+    setMotionVelocity(0);
+    setMotionDetected(false);
+    setDetectedActivity('Ready for Analysis (Paused at 00:00)');
     setDetectedEvents([]);
-    setRiskHistory([{ t: 0, score: 8, level: 'SAFE' }]);
+    setRiskHistory([{ t: 0, score: 0, level: 'SAFE' }]);
+    setAnalyzedHeatmap([]);
     prevFrameDataRef.current = null;
     prevCentroidRef.current = null;
     smoothedBoxRef.current = null;
@@ -558,38 +578,41 @@ export default function Monitoring() {
             activityDesc = 'Standard Supervised Activity';
           }
         } else {
-          // LIVE VIDEO FILE COMPUTATION: Driven solely by pixel differencing kinematics & geofence!
-          if (deltaY > 5.2 || normY > 0.75) {
-            // Sudden vertical drop
-            score = Math.min(96, Math.round(82 + deltaY * 2));
+          // LIVE VIDEO FILE COMPUTATION: Driven solely by physical kinematics & posture collapse (zero false spatial triggers!)
+          const aspectRatio = rawBoxW / Math.max(1, rawBoxH);
+          const isRecumbent = aspectRatio > 1.15; // horizontal collapsed body shape
+
+          if (deltaY > 5.8 && isRecumbent) {
+            // True rapid downward velocity + flattened posture collapse
+            score = Math.min(98, Math.round(82 + deltaY * 2.5));
             detectedRiskLevel = 'CRITICAL RISK';
-            activityDesc = 'SUDDEN COLLAPSE / FALL DETECTED';
+            activityDesc = 'SUDDEN POSTURE COLLAPSE / FALL DETECTED';
             strokeColor = '#EF4444';
             fillColor = 'rgba(239, 68, 68, 0.25)';
-          } else if (normX > 0.72) {
-            // Restricted perimeter zone
-            score = Math.min(85, Math.round(65 + speed * 2));
+          } else if (speed > 10.5) {
+            // High velocity rapid sprint / erratic movement
+            score = Math.min(80, Math.round(52 + (speed - 10.5) * 3.5));
             detectedRiskLevel = 'HIGH RISK';
-            activityDesc = 'RESTRICTED HIGHWAY PERIMETER BREACH';
+            activityDesc = 'High Velocity Sprint / Rapid Movement';
             strokeColor = '#F43F5E';
             fillColor = 'rgba(244, 63, 94, 0.22)';
-          } else if (speed > 6.5 || normX > 0.49) {
-            // Rapid velocity / warning buffer
-            score = Math.min(50, Math.round(20 + speed * 3.5));
+          } else if (speed > 5.0) {
+            // Elevated walking pace / brisk movement
+            score = Math.min(50, Math.round(18 + (speed - 5.0) * 6.0));
             detectedRiskLevel = 'WARNING';
-            activityDesc = 'Elevated Velocity / Warning Buffer Area';
+            activityDesc = 'Accelerated Gait / Brisk Motion';
             strokeColor = '#F59E0B';
             fillColor = 'rgba(245, 158, 11, 0.18)';
-          } else if (energyPct < 4 || speed < 2.0) {
-            // Still / resting safely
-            score = Math.max(3, Math.round(energyPct * 2));
+          } else if (energyPct < 3 || speed < 1.5) {
+            // Stationary / safe presence
+            score = Math.max(0, Math.round(energyPct * 1.5));
             detectedRiskLevel = 'SAFE';
             activityDesc = 'Stationary / Safe Presence';
             strokeColor = '#10B981';
             fillColor = 'rgba(16, 185, 129, 0.08)';
           } else {
-            // Normal steady walking
-            score = Math.min(15, Math.round(6 + energyPct * 0.4 + speed));
+            // Normal walking movement
+            score = Math.min(15, Math.max(3, Math.round(3 + energyPct * 0.4 + speed * 1.2)));
             detectedRiskLevel = 'SAFE';
             activityDesc = 'Normal Walking / Stable Gait';
             strokeColor = '#10B981';
@@ -619,6 +642,17 @@ export default function Monitoring() {
             return updated.slice(-35); // Keep last 35 points for wave
           });
 
+          // Record second-by-second heatmap slice for live video
+          if (videoSource) {
+            const secIdx = Math.floor(curT);
+            setAnalyzedHeatmap((prev) => {
+              if (prev[secIdx] && prev[secIdx].score === score) return prev;
+              const next = [...prev];
+              next[secIdx] = { score, level: detectedRiskLevel, activity: activityDesc };
+              return next;
+            });
+          }
+
           // Trigger audible alert on critical
           if (soundAlertEnabled && score >= 80 && now - lastSirenTimeRef.current > 4000) {
             lastSirenTimeRef.current = now;
@@ -644,7 +678,7 @@ export default function Monitoring() {
           }
         }
       } else {
-        // No motion detected -> decay smoothly back to Safe (0-8)
+        // No motion detected -> decay smoothly back to Safe (0-5)
         if (smoothedBoxRef.current) smoothedBoxRef.current = null;
         const now = performance.now();
         if (now - lastStateUpdateRef.current > 300) {
@@ -653,7 +687,7 @@ export default function Monitoring() {
           setMotionVelocity(0);
           setMotionDetected(false);
           setCurrentRisk('SAFE');
-          setCurrentRiskScore(5);
+          setCurrentRiskScore(0);
           setDetectedActivity('Baseline Scan (Motion Zero / Safe)');
           setMotionStatus('Baseline Scan Active (Zero Motion Detected)');
         }
@@ -1039,28 +1073,99 @@ export default function Monitoring() {
             </span>
           </div>
 
-          {/* Segmented Risk Timeline Bar */}
+          {/* Truly Dynamic Risk Timeline Bar */}
           <div
-            className="h-3.5 w-full bg-slate-200 rounded-full overflow-hidden flex cursor-pointer relative shadow-inner"
-            title="Click anywhere to scrub timecode"
+            className="h-4 w-full bg-slate-200 rounded-full overflow-hidden flex cursor-pointer relative shadow-inner border border-slate-300 select-none"
+            title="Click anywhere on the timeline to scrub timecode and analyze frames"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
-              const pct = (e.clientX - rect.left) / rect.width;
+              const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
               const newTime = pct * duration;
               setCurrentTime(newTime);
               if (videoRef.current) videoRef.current.currentTime = newTime;
             }}
           >
-            <div className="w-[30%] bg-emerald-500 h-full border-r border-white/30" title="00:00 - 00:09: Safe Baseline (Score 0-15)"></div>
-            <div className="w-[20%] bg-amber-400 h-full border-r border-white/30" title="00:09 - 00:14: Warning / Unsteadiness (Score 16-50)"></div>
-            <div className="w-[25%] bg-rose-500 h-full border-r border-white/30" title="00:14 - 00:21: Critical Anomaly Peak (Score 51-100)"></div>
-            <div className="w-[25%] bg-emerald-500 h-full" title="00:21 - 00:30: Recovery & Restabilization (Score Drops back to Safe)"></div>
+            {videoSource ? (
+              /* Uploaded Live Video: Render evaluated heatmap slices from actual frame inference */
+              analyzedHeatmap.length > 0 ? (
+                <div className="w-full h-full flex">
+                  {Array.from({ length: Math.ceil(duration) }).map((_, secIdx) => {
+                    const sliceWidth = (1 / duration) * 100;
+                    const item = analyzedHeatmap[secIdx];
+                    const isEvaluated = secIdx <= Math.floor(currentTime);
+                    const bg = !isEvaluated || !item
+                      ? 'bg-slate-200'
+                      : item.score > 80
+                      ? 'bg-rose-600'
+                      : item.score > 50
+                      ? 'bg-orange-500'
+                      : item.score > 15
+                      ? 'bg-amber-400'
+                      : 'bg-emerald-500';
 
-            {/* Scrubber pointer */}
+                    return (
+                      <div
+                        key={secIdx}
+                        style={{ width: `${sliceWidth}%` }}
+                        className={`h-full ${bg} ${isEvaluated ? '' : 'opacity-40'} border-r border-white/20`}
+                        title={`Time ${formatSeconds(secIdx)}: ${item ? `${item.level} (${item.score}/100)` : 'Pending Analysis'}`}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500 font-mono font-medium">
+                  Video Loaded ({formatSeconds(duration)}) • Press Play or Scrub to analyze frames
+                </div>
+              )
+            ) : (
+              /* Preset Demonstrations: Render active scenario's actual segments */
+              presetScenarios[activeScenarioKey]?.segments.map((seg, sIdx) => {
+                const isPassed = currentTime >= seg.end;
+                const isCurrent = currentTime >= seg.start && currentTime < seg.end;
+                const isFuture = currentTime < seg.start;
+
+                return (
+                  <div
+                    key={sIdx}
+                    style={{ width: `${seg.pct}%` }}
+                    className={`h-full ${seg.bg} border-r border-white/40 transition-all duration-200 ${
+                      isPassed || isCurrent ? 'opacity-100' : 'opacity-35'
+                    }`}
+                    title={seg.label}
+                  />
+                );
+              })
+            )}
+
+            {/* Scrubber pointer handle */}
             <div
               style={{ left: `${progressPercent}%` }}
-              className="absolute top-0 bottom-0 w-2.5 bg-slate-900 rounded-full shadow-md pointer-events-none transform -translate-x-1/2"
+              className="absolute top-0 bottom-0 w-3 bg-slate-950 border-2 border-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 z-10"
             />
+          </div>
+
+          {/* Timeline Info Breadcrumb (Shows active zone profile & playhead risk) */}
+          <div className="flex items-center justify-between text-[11px] font-mono pt-1 text-slate-500 flex-wrap gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-slate-700">Timeline Profile:</span>
+              <span className="text-slate-600 font-semibold">
+                {videoSource
+                  ? (currentTime === 0
+                      ? 'Awaiting Playback to Evaluate Frames'
+                      : `Live Video: ${Math.round(currentTime * 30)} / ${Math.round(duration * 30)} frames evaluated`)
+                  : (presetScenarios[activeScenarioKey]?.segments.find(s => currentTime >= s.start && currentTime < s.end)?.label
+                      || (currentTime >= duration ? 'Playback Completed • All Clear' : presetScenarios[activeScenarioKey]?.name))}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 font-bold">
+              <span className="text-slate-400">Current Risk:</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                currentRiskScore > 80 ? 'bg-rose-100 text-rose-700' : currentRiskScore > 50 ? 'bg-orange-100 text-orange-700' : currentRiskScore > 15 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+              }`}>
+                {currentRiskScore}/100 [{currentRisk}]
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center justify-between pt-1 flex-wrap gap-2">

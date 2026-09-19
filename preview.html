@@ -622,18 +622,25 @@
                   <span id="p-timecode" class="font-mono text-slate-700">00:00 / 00:30 (Frame #0)</span>
                 </div>
 
-                <div class="relative w-full h-3 bg-slate-200 rounded-full overflow-hidden flex cursor-pointer" onclick="seekPreviewTimeline(event)">
-                  <div class="w-[35%] bg-emerald-500 hover:opacity-80 transition" title="00:00 - 00:10: Safe"></div>
-                  <div class="w-[30%] bg-amber-400 hover:opacity-80 transition" title="00:10 - 00:20: Attention"></div>
-                  <div class="w-[35%] bg-rose-500 hover:opacity-80 transition" title="00:20 - 00:30: Breach"></div>
-                  <div id="p-playhead" class="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_5px_black] left-[0%] transition-all duration-300"></div>
+                <div id="p-timeline-bar" class="relative w-full h-4 bg-slate-200 rounded-full overflow-hidden flex cursor-pointer border border-slate-300 select-none shadow-inner" onclick="seekPreviewTimeline(event)" title="Click anywhere to scrub timecode and analyze frames">
+                  <div id="p-timeline-segments" class="w-full h-full flex">
+                    <div style="width: 26.7%" class="h-full bg-emerald-500 border-r border-white/40" title="00:00 - 00:08 Safe (Score 8/100)"></div>
+                    <div style="width: 20.0%" class="h-full bg-amber-400 border-r border-white/40 opacity-40" title="00:08 - 00:14 Warning (Score 38/100)"></div>
+                    <div style="width: 23.3%" class="h-full bg-rose-500 border-r border-white/40 opacity-40" title="00:14 - 00:21 Breach (Score 78/100)"></div>
+                    <div style="width: 30.0%" class="h-full bg-emerald-500 opacity-40" title="00:21 - 00:30 Restabilized Safe (Score 10/100)"></div>
+                  </div>
+                  <div id="p-playhead" class="absolute top-0 bottom-0 w-3 bg-slate-950 border-2 border-white rounded-full shadow-lg left-[0%] transition-all duration-150 transform -translate-x-1/2"></div>
                 </div>
 
-                <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono pt-1">
-                  <span>00:00 Safe (Green)</span>
-                  <span>00:10 Warning (Amber)</span>
-                  <span>00:20 Breach (Red)</span>
-                  <span>00:30 Action Protocol</span>
+                <div class="flex items-center justify-between text-[11px] font-mono pt-1 text-slate-500 flex-wrap gap-2">
+                  <div>
+                    <span class="font-bold text-slate-700">Timeline Profile:</span>
+                    <span id="p-timeline-label" class="text-slate-600 font-semibold ml-1">00:00 - 00:08: Normal Walking in Safe Zone (Score: 8/100)</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 font-bold">
+                    <span class="text-slate-400">Current Risk:</span>
+                    <span id="p-timeline-current-score" class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800">8/100 [SAFE]</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1744,18 +1751,65 @@
       }
     }
 
+    const pScenarioProfiles = {
+      breach: [
+        { start: 0, end: 8, pct: 26.7, bg: 'bg-emerald-500', label: '00:00 - 00:08: Normal Walking in Safe Zone (Score: 8/100)', level: 'SAFE', score: 8 },
+        { start: 8, end: 14, pct: 20.0, bg: 'bg-amber-400', label: '00:08 - 00:14: Accelerating towards Buffer (Score: 38/100)', level: 'WARNING', score: 38 },
+        { start: 14, end: 21, pct: 23.3, bg: 'bg-rose-500', label: '00:14 - 00:21: Perimeter Gate Breach (Score: 78/100)', level: 'HIGH RISK', score: 78 },
+        { start: 21, end: 30, pct: 30.0, bg: 'bg-emerald-500', label: '00:21 - 00:30: Escorted Back / Restabilized Safe (Score: 10/100)', level: 'SAFE', score: 10 }
+      ],
+      fall: [
+        { start: 0, end: 9, pct: 30.0, bg: 'bg-emerald-500', label: '00:00 - 00:09: Safe Recreational Motion (Score: 8/100)', level: 'SAFE', score: 8 },
+        { start: 9, end: 13, pct: 13.3, bg: 'bg-amber-400', label: '00:09 - 00:13: Unsteady Stumble (Score: 35/100)', level: 'WARNING', score: 35 },
+        { start: 13, end: 19, pct: 20.0, bg: 'bg-rose-600', label: '00:13 - 00:19: Sudden Posture Collapse & Fall (Score: 94/100)', level: 'CRITICAL RISK', score: 94 },
+        { start: 19, end: 30, pct: 36.7, bg: 'bg-emerald-500', label: '00:19 - 00:30: First-Aid Attended / Restabilized Safe (Score: 11/100)', level: 'SAFE', score: 11 }
+      ],
+      normal: [
+        { start: 0, end: 30, pct: 100.0, bg: 'bg-emerald-500', label: '00:00 - 00:30: Standard Supervised Walking (Safe Throughout, Score: 7/100)', level: 'SAFE', score: 7 }
+      ]
+    };
+    let currentActivePresetKey = 'breach';
+
+    function renderPreviewTimelineSegments(sec) {
+      const segs = pScenarioProfiles[currentActivePresetKey] || pScenarioProfiles.breach;
+      const segsContainer = document.getElementById('p-timeline-segments');
+      if (segsContainer) {
+        segsContainer.innerHTML = segs.map(s => {
+          const isEvaluated = sec >= s.start;
+          const isPassed = sec >= s.end;
+          const opacityClass = (isEvaluated || isPassed) ? 'opacity-100' : 'opacity-35';
+          return `<div style="width: ${s.pct}%" class="h-full ${s.bg} border-r border-white/40 transition-opacity ${opacityClass}" title="${s.label}"></div>`;
+        }).join('');
+      }
+
+      const activeSeg = segs.find(s => sec >= s.start && sec < s.end) || segs[segs.length - 1];
+      const lblEl = document.getElementById('p-timeline-label');
+      if (lblEl && activeSeg) {
+        lblEl.innerText = activeSeg.label;
+      }
+      const scoreEl = document.getElementById('p-timeline-current-score');
+      if (scoreEl && activeSeg) {
+        const bgClass = activeSeg.score > 80 ? 'bg-rose-100 text-rose-700' : activeSeg.score > 50 ? 'bg-orange-100 text-orange-700' : activeSeg.score > 15 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+        scoreEl.className = `px-2 py-0.5 rounded text-[10px] ${bgClass}`;
+        scoreEl.innerText = `${activeSeg.score}/100 [${activeSeg.level}]`;
+      }
+    }
+
     function evaluateRiskAtSecond(sec) {
-      if (sec >= 22) {
-        applyScenarioData('breach');
-      } else if (sec >= 14) {
-        // Medium Warning
-        updateLiveRiskTelemetry('MEDIUM RISK', 'bg-amber-500 text-white', '94.8%', 'Medium Risk', 'bg-amber-50 border-amber-200 text-amber-900', 'Token C-017 lingering in Warning Zone buffer.');
-      } else if (sec >= 7) {
-        // Low Risk
-        updateLiveRiskTelemetry('LOW RISK', 'bg-emerald-500 text-white', '96.2%', 'Low Risk', 'bg-emerald-50 border-emerald-200 text-emerald-900', 'Token C-017 verified in buffer perimeter.');
+      renderPreviewTimelineSegments(sec);
+      const segs = pScenarioProfiles[currentActivePresetKey] || pScenarioProfiles.breach;
+      const activeSeg = segs.find(s => sec >= s.start && sec < s.end) || segs[segs.length - 1];
+
+      if (!activeSeg) return;
+
+      if (activeSeg.level.includes('CRITICAL')) {
+        updateLiveRiskTelemetry('CRITICAL RISK', 'bg-rose-600 text-white', '96.8%', 'Critical Risk: Sudden Posture Collapse', 'bg-rose-50 border-rose-200 text-rose-900', 'Immediate physical dispatch: Recumbent posture collapsed on turf >10s.');
+      } else if (activeSeg.level.includes('HIGH')) {
+        updateLiveRiskTelemetry('HIGH RISK', 'bg-rose-500 text-white', '95.4%', 'High Risk: Highway Boundary Breach', 'bg-rose-50 border-rose-200 text-rose-900', 'Subject crossed perimeter line toward Moinabad Highway road.');
+      } else if (activeSeg.level.includes('WARN')) {
+        updateLiveRiskTelemetry('WARNING', 'bg-amber-500 text-white', '94.2%', 'Warning: Elevated Velocity / Boundary Approach', 'bg-amber-50 border-amber-200 text-amber-900', 'Subject approaching perimeter buffer at accelerated velocity.');
       } else {
-        // Safe / No Risk
-        updateLiveRiskTelemetry('NO RISK DETECTED', 'bg-emerald-500 text-white', '98.4%', 'No Risk Detected', 'bg-emerald-50 border-emerald-200 text-emerald-900', 'All monitored entities within safe playground boundaries.');
+        updateLiveRiskTelemetry('SAFE', 'bg-emerald-500 text-white', '98.5%', 'Safe: Standard Campus Operations', 'bg-emerald-50 border-emerald-200 text-emerald-900', 'Subject verified in authorized central campus zones. All clear.');
       }
     }
 
