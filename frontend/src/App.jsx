@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
@@ -41,7 +41,7 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         {/* Opening the site always goes to Login first if not authenticated */}
         <Route
@@ -98,6 +98,6 @@ export default function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
