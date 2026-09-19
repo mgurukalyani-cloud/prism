@@ -9,7 +9,8 @@ import {
   WifiOff,
   UserCheck,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  Smartphone
 } from 'lucide-react';
 
 export default function Header({
@@ -19,7 +20,8 @@ export default function Header({
   aiStatus = 'YOLO Active',
   alertsCount = 4,
   userRole = 'Admin',
-  onRoleChange
+  onRoleChange,
+  onOpenDispatch
 }) {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
@@ -81,6 +83,16 @@ export default function Header({
               <span>START DEMO LOOP</span>
             </>
           )}
+        </button>
+
+        {/* Security WhatsApp & SMS Dispatch Simulator Trigger */}
+        <button
+          onClick={() => onOpenDispatch && onOpenDispatch()}
+          className="px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs transition cursor-pointer"
+          title="Open Security Mobile Dispatch Simulator (Send WhatsApp / SMS to your phone)"
+        >
+          <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+          <span>📲 WhatsApp Dispatch</span>
         </button>
 
         {/* Notifications Icon with Dynamic Badge */}

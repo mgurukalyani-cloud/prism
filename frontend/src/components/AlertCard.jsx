@@ -60,6 +60,29 @@ export default function AlertCard({ alert, onAcknowledge, onResolve, onViewEvent
       </div>
 
       <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-slate-100">
+        {/* Real WhatsApp Click-to-Send */}
+        <button
+          onClick={() => {
+            const storedPhone = localStorage.getItem('childguard_guard_phone') || '+919876543210';
+            const clean = storedPhone.replace(/[^0-9]/g, '');
+            const msg = encodeURIComponent(
+              `🚨 *CHILDGUARD AI — EMERGENCY DISPATCH ALERT* 🚨\n\n` +
+              `⚠️ *Incident:* ${alert.event_type || 'Safety Alert'}\n` +
+              `👤 *Token:* ${alert.child_id || 'C-017'}\n` +
+              `📍 *Zone:* ${alert.zone || 'Campus Zone'}\n` +
+              `📊 *Severity:* ${alert.risk_level || alert.risk || 'HIGH'}\n` +
+              `⏱️ *Time:* ${new Date().toLocaleTimeString()}\n` +
+              `👮 *Action:* Urgent patrol response required.\n\n` +
+              `_PRISMTECH 2026 Campus Safety Network_`
+            );
+            window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${msg}`, '_blank');
+          }}
+          className="px-2.5 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition flex items-center gap-1 cursor-pointer"
+          title="Send real emergency dispatch alert to personal WhatsApp"
+        >
+          <span>🟢 WhatsApp</span>
+        </button>
+
         {onViewEvent && (
           <button
             onClick={() => onViewEvent(alert)}

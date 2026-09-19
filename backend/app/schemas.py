@@ -129,3 +129,15 @@ class SimulationTriggerRequest(BaseModel):
     scenario: str # "restricted_zone", "fall_detected", "child_left_behind"
     child_id: Optional[str] = "C-017"
     zone: Optional[str] = "Main Gate"
+
+# Security Dispatch Request
+class DispatchRequest(BaseModel):
+    phone_number: str
+    alert_id: Optional[int] = None
+    channel: str = "WHATSAPP" # "SMS" or "WHATSAPP"
+    officer_name: Optional[str] = "Patrol Officer Vikram"
+    incident_type: Optional[str] = None
+    child_token: Optional[str] = None
+    zone: Optional[str] = None
+    risk_level: Optional[str] = None
+

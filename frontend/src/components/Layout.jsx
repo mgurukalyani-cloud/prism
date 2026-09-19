@@ -3,9 +3,10 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import LiveAlert from './LiveAlert';
+import MobileDispatchSimulator from './MobileDispatchSimulator';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { api } from '../services/api';
-import { Info, ShieldAlert } from 'lucide-react';
+import { Info, ShieldAlert, Smartphone } from 'lucide-react';
 
 export default function Layout({ userRole = 'Admin', onRoleChange, onLogout }) {
   const navigate = useNavigate();
@@ -40,6 +41,14 @@ export default function Layout({ userRole = 'Admin', onRoleChange, onLogout }) {
     setActiveAlertsCount((prev) => Math.max(0, prev - 1));
   };
 
+  const [isDispatchOpen, setIsDispatchOpen] = useState(false);
+  const [dispatchAlert, setDispatchAlert] = useState(null);
+
+  const handleOpenDispatch = (targetAlert = null) => {
+    setDispatchAlert(targetAlert || latestAlert);
+    setIsDispatchOpen(true);
+  };
+
   const handleLogoutClick = () => {
     if (onLogout) onLogout();
     navigate('/login');
@@ -66,6 +75,7 @@ export default function Layout({ userRole = 'Admin', onRoleChange, onLogout }) {
           userRole={userRole}
           onRoleChange={onRoleChange}
           alertsCount={activeAlertsCount}
+          onOpenDispatch={handleOpenDispatch}
         />
 
         {/* Real-time Alert Toast Notification */}
@@ -98,8 +108,29 @@ export default function Layout({ userRole = 'Admin', onRoleChange, onLogout }) {
 
         {/* Page Outlet */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          <Outlet context={{ isSimulating, triggerScenario, userRole, activeAlertsCount, onAlertResolved: handleAlertResolved, refreshStats: syncAlertsCount }} />
+          <Outlet context={{ isSimulating, triggerScenario, userRole, activeAlertsCount, onAlertResolved: handleAlertResolved, refreshStats: syncAlertsCount, onOpenDispatch: handleOpenDispatch }} />
         </main>
+
+        {/* Floating Security Mobile Dispatch Trigger */}
+        <button
+          onClick={() => handleOpenDispatch()}
+          className="fixed bottom-6 right-6 z-40 px-4 py-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-xl shadow-emerald-600/30 font-bold text-xs flex items-center gap-2.5 transition-all transform hover:scale-105 cursor-pointer border border-emerald-400/40"
+          title="Open Security Mobile Dispatch (WhatsApp / SMS)"
+        >
+          <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          <Smartphone className="w-4 h-4" />
+          <span>📱 Dispatch Mobile</span>
+          <span className="bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px] font-mono">
+            {activeAlertsCount}
+          </span>
+        </button>
+
+        {/* Smartphone Simulator Modal */}
+        <MobileDispatchSimulator
+          isOpen={isDispatchOpen}
+          onClose={() => setIsDispatchOpen(false)}
+          activeAlert={dispatchAlert || latestAlert}
+        />
 
         {/* Enterprise Privacy & Human Supervision Footer */}
         <footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
