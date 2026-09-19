@@ -3,8 +3,9 @@
 > **Tagline:** Detect. Assess. Alert. Protect.  
 > **Event:** PRISMTECH 2026 — Social Stream  
 > **Domain:** Child Monitoring & Campus Safety  
+> **🌐 Live Deployed Website:** [https://mgurukalyani-cloud.github.io/prism/](https://mgurukalyani-cloud.github.io/prism/)  
+> **🎬 Standalone Live Preview:** [https://mgurukalyani-cloud.github.io/prism/preview.html](https://mgurukalyani-cloud.github.io/prism/preview.html)  
 > **Repository:** [https://github.com/mgurukalyani-cloud/prism](https://github.com/mgurukalyani-cloud/prism)  
-> **Standalone Interactive Preview:** [`childguard_preview.html`](./childguard_preview.html)  
 
 ---
 
