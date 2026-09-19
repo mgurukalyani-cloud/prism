@@ -133,11 +133,12 @@ class SimulationTriggerRequest(BaseModel):
 # Security Dispatch Request
 class DispatchRequest(BaseModel):
     phone_number: str
-    alert_id: Optional[int] = None
+    alert_id: Optional[Any] = None
     channel: str = "WHATSAPP" # "SMS" or "WHATSAPP"
     officer_name: Optional[str] = "Patrol Officer Vikram"
     incident_type: Optional[str] = None
     child_token: Optional[str] = None
     zone: Optional[str] = None
     risk_level: Optional[str] = None
+
 

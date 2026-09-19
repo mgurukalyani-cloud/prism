@@ -35,7 +35,11 @@ def get_alert(id: int, db: Session = Depends(get_db)):
 async def dispatch_security_sms(dispatch: DispatchRequest, db: Session = Depends(get_db)):
     target_alert = None
     if dispatch.alert_id:
-        target_alert = db.query(Alert).filter(Alert.id == dispatch.alert_id).first()
+        try:
+            cleaned_id = int(str(dispatch.alert_id).replace("ALT-", "").replace("#", "").strip())
+            target_alert = db.query(Alert).filter(Alert.id == cleaned_id).first()
+        except Exception:
+            pass
 
     incident_title = dispatch.incident_type or (target_alert.event_type if target_alert else "Perimeter Breach Detected")
     child_token = dispatch.child_token or (target_alert.child_id if target_alert else "C-017")
