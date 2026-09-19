@@ -14,8 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Sparkles,
-  LogIn
+  Sparkles
 } from 'lucide-react';
 
 export default function Sidebar({ isCollapsed, setIsCollapsed, userRole, onLogout, activeAlertsCount = 4 }) {
@@ -29,7 +28,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, userRole, onLogou
     { to: '/reports', label: 'Analytics & Reports', icon: BarChart3 },
     { to: '/admin', label: 'Admin Console', icon: ShieldCheck },
     { to: '/settings', label: 'System Settings', icon: Settings },
-    { to: '/login', label: 'Sign In / Personas', icon: LogIn },
   ];
 
   return (
