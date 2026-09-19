@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChildGuard AI — Complete Website Interactive Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.03) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.03) 0%, transparent 40%),
+                  #F8FAFC;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    @keyframes scanBeam {
+      0% { top: 0%; opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { top: 100%; opacity: 0.8; }
+    }
+    .scanner-beam {
+      animation: scanBeam 2.2s ease-in-out infinite alternate;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.85);
+    }
+  </style>
+</head>
+<body class="text-slate-900 min-h-screen antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
+
+  <!-- Live Toast Alert Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 max-w-sm w-full transition-all duration-300 transform translate-x-full opacity-0 pointer-events-none">
+    <div id="toast-card" class="rounded-2xl border border-rose-200 bg-white/95 backdrop-blur-md shadow-2xl p-4 text-slate-900 relative overflow-hidden pointer-events-auto">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 text-rose-600 border border-rose-200 flex items-center justify-center font-bold text-lg shadow-xs">
+            🚨
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span id="toast-badge" class="text-[10px] font-black uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">HIGH RISK</span>
+              <span id="toast-id" class="text-xs font-mono text-indigo-600 font-bold">C-017</span>
+            </div>
+            <h4 id="toast-title" class="font-bold text-sm text-slate-900 mt-0.5">Perimeter Breach Detected</h4>
+          </div>
+        </div>
+        <button onclick="dismissToast()" class="text-slate-400 hover:text-slate-600 text-sm">✕</button>
+      </div>
+      <p id="toast-desc" class="text-xs text-slate-600 mt-2 leading-relaxed">
+        Child crossed perimeter boundary toward Main Highway road.
+      </p>
+      <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-100 text-xs">
+        <span class="text-slate-500">Timestamp: <strong class="text-slate-700 font-mono">Just now</strong></span>
+        <button onclick="resolveToastAlert()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold shadow-sm transition flex items-center gap-1">
+          ✓ Resolve Alert
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top App Navigation Bar -->
+  <header class="h-16 glass-panel border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <div class="flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 flex items-center justify-center shadow-md shadow-indigo-600/20 text-white font-black text-xl">
+        🛡️
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-lg font-black text-slate-900 tracking-tight">ChildGuard <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono">AI</span></span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> SYSTEM ACTIVE
+          </span>
+          <span class="hidden md:inline-block text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+            PRISMTECH 2026
+          </span>
+        </div>
+        <p class="text-[10px] text-slate-500 font-medium hidden sm:block">
+          Detect. Assess. Alert. Protect. • AI-Powered Child Safety Ecosystem
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Controls: Role, Live App Link, Alert Counter -->
+    <div class="flex items-center gap-3">
+      <!-- Role Switcher (Admin / Campus Security) -->
+      <div class="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 text-xs font-semibold">
+        <button id="role-admin-btn" onclick="switchRole('Administrator')" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-indigo-700 font-bold transition">
+          Admin
+        </button>
+        <button id="role-security-btn" onclick="switchRole('Campus Security')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          Security
+        </button>
+      </div>
+
+      <!-- Quick Link to Port 5174 -->
+      <a href="http://127.0.0.1:5174" target="_blank" class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-md shadow-indigo-600/20 transition">
+        <span>React App (Port 5174)</span> ↗
+      </a>
+
+      <!-- Sign Out Button -->
+      <button id="preview-signout-btn" onclick="handlePreviewLogout()" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition flex items-center gap-1 cursor-pointer" title="Sign Out to Login Screen">
+        <span>🚪 Sign Out</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Scenario Bar -->
+  <div id="scenario-bar" class="bg-gradient-to-r from-indigo-50/70 via-purple-50/40 to-slate-50 border-b border-indigo-100/80 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+    <div class="flex items-center gap-2">
+      <span class="text-indigo-600 font-bold flex items-center gap-1">
+        <span>⚡</span> Quick Scenario Injection:
+      </span>
+      <span class="text-slate-500 hidden md:inline">Test real-time risk engine heuristics:</span>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button onclick="injectScenario('breach')" class="px-2.5 py-1 rounded-lg font-bold bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 transition shadow-xs">
+        1. Perimeter Breach
+      </button>
+      <button onclick="injectScenario('fall')" class="px-2.5 py-1 rounded-lg font-bold bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 transition shadow-xs">
+        2. Posture Fall
+      </button>
+      <button onclick="injectScenario('bus')" class="px-2.5 py-1 rounded-lg font-bold bg-white hover:bg-amber-50 text-amber-800 border border-amber-200 transition shadow-xs">
+        3. Bus Left Behind
+      </button>
+      <button id="auto-btn" onclick="toggleAutoLoop()" class="px-3 py-1 rounded-lg font-bold bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-sm transition">
+        ▶ Demo Loop (5s)
+      </button>
+    </div>
+  </div>
+
+  <!-- Layout: Sidebar Nav + Main Content Body -->
+  <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 sm:p-6 gap-6">
+
+    <!-- Expressive Sidebar Navigation -->
+    <aside class="w-full md:w-60 shrink-0 space-y-1.5">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">
+        Website Views & Modules
+      </div>
+
+      <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-left bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-600/20">
+        <span class="text-sm">📊</span>
+        <span class="flex-1">Dashboard</span>
+      </button>
+
+      <button onclick="switchView('monitoring')" id="nav-monitoring" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">🎬</span>
+        <span class="flex-1">AI Video Analysis</span>
+        <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">PRO</span>
+      </button>
+
+      <button onclick="switchView('cameras')" id="nav-cameras" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">📹</span>
+        <span class="flex-1">Live Camera Wall</span>
+      </button>
+
+      <button onclick="switchView('children')" id="nav-children" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">👥</span>
+        <span class="flex-1">Children Registry</span>
+        <span class="text-[10px] font-mono font-bold text-slate-400">128</span>
+      </button>
+
+      <button onclick="switchView('map')" id="nav-map" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">🗺️</span>
+        <span class="flex-1">Campus Geofence Map</span>
+      </button>
+
+      <button onclick="switchView('alerts')" id="nav-alerts" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">🚨</span>
+        <span class="flex-1">Safety Alerts</span>
+        <span id="nav-alert-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">4</span>
+      </button>
+
+      <button onclick="switchView('reports')" id="nav-reports" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">📈</span>
+        <span class="flex-1">Reports & Analytics</span>
+      </button>
+
+      <button onclick="switchView('admin')" id="nav-admin" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">⚙️</span>
+        <span class="flex-1">Admin & Settings</span>
+      </button>
+
+      <button onclick="switchView('login')" id="nav-login" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">🔐</span>
+        <span class="flex-1">Login & Personas</span>
+        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">AUTH</span>
+      </button>
+
+      <!-- Sidebar Status Banner -->
+      <div class="pt-4 mt-4 border-t border-slate-200">
+        <div class="glass-panel p-3.5 rounded-2xl space-y-2">
+          <div class="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Zero Biometrics Stored
+          </div>
+          <p class="text-[10px] text-slate-500 leading-relaxed">
+            Privacy-by-design architecture: Only anonymous ID tokens & skeletal pose heuristics are processed.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main View Switcher Target Area -->
+    <main class="flex-1 min-w-0">
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: DASHBOARD COMMAND CENTER -->
+      <!-- ========================================== -->
+      <div id="view-dashboard" class="space-y-6">
+        <div>
+          <h2 class="text-2xl font-black text-slate-900 tracking-tight">Executive Safety Command Center</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Real-time telemetry aggregation across all campus security sectors</p>
+        </div>
+
+        <!-- 4 Top StatCards with Expressive Gradient Ribbons -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-xs hover:shadow-md transition">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Tracked Children</div>
+            <div class="text-3xl font-black text-slate-900 mt-1">128</div>
+            <div class="text-xs text-emerald-600 font-semibold mt-1">100% Geofence Protection</div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-xs hover:shadow-md transition">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Optical Camera Array</div>
+            <div class="text-3xl font-black text-slate-900 mt-1">12</div>
+            <div class="text-xs text-indigo-600 font-semibold mt-1">1080p @ 30 FPS Active</div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-xs hover:shadow-md transition">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active Safety Alerts</div>
+            <div id="dash-alerts-count" class="text-3xl font-black text-amber-600 mt-1">4</div>
+            <div class="text-xs text-amber-700 font-semibold mt-1">Pending Staff Verification</div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-xs hover:shadow-md transition">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">High Risk Incidents</div>
+            <div id="dash-high-count" class="text-3xl font-black text-rose-600 mt-1">2</div>
+            <div class="text-xs text-rose-700 font-semibold mt-1">Requires Direct Response</div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-pink-500"></div>
+          </div>
+        </div>
+
+        <!-- Campus Safety Health Index -->
+        <div class="glass-panel rounded-2xl p-5 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
+            <div>
+              <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider font-mono">Safety Health Index</span>
+              <h3 class="text-base font-black text-slate-900">Campus Threat Distribution</h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                98.6% Operational Integrity
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-slate-50/80 border border-emerald-200 rounded-xl p-3.5 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-emerald-700">NO / LOW RISK</span>
+                <div class="text-2xl font-black text-slate-900 mt-0.5">14</div>
+                <p class="text-[10px] text-slate-500">Playground & Academic Hub</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Normal</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-amber-200 rounded-xl p-3.5 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-amber-700">MEDIUM RISK</span>
+                <div class="text-2xl font-black text-slate-900 mt-0.5">5</div>
+                <p class="text-[10px] text-slate-500">Transit / Bus Depot</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Warning</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-rose-200 rounded-xl p-3.5 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-rose-700">HIGH / CRITICAL</span>
+                <div class="text-2xl font-black text-slate-900 mt-0.5">2</div>
+                <p class="text-[10px] text-slate-500">Main Gate Highway Perimeter</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 animate-pulse">Critical</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Problem Resolution Bar Graph Card -->
+        <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  LIVE REAL-TIME GRAPH
+                </span>
+                <h3 class="text-base font-black text-slate-900">Live Incident Resolution & Remediation (Bar Chart)</h3>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Bar graph dynamically updates in real time when problems/alerts are solved.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                onclick="quickResolvePreviewProblem()"
+                class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                title="Click to resolve an incident and see the green bar graph climb live!"
+              >
+                <span>✓ Solve Problem (+1 Solved)</span>
+              </button>
+              <button
+                onclick="simulatePreviewIncident()"
+                class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition cursor-pointer"
+                title="Inject an issue to see the red bar climb"
+              >
+                <span>+ Issue</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center pt-2">
+            <!-- Vertical Bar Chart visualization with CSS transitions -->
+            <div class="md:col-span-3 h-52 bg-slate-50/60 rounded-xl border border-slate-100 p-4 flex items-end justify-around gap-6 relative">
+              <!-- Y-axis guide gridlines -->
+              <div class="absolute inset-x-4 top-4 border-b border-slate-200/60 border-dashed text-[9px] text-slate-400 font-mono flex justify-end">Max</div>
+              <div class="absolute inset-x-4 top-1/2 border-b border-slate-200/60 border-dashed text-[9px] text-slate-400 font-mono flex justify-end">Mid</div>
+
+              <!-- Bar 1: Urgent Unresolved -->
+              <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end z-10">
+                <span class="bar-count-urgent text-xs font-mono font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">4</span>
+                <div class="w-full max-w-[64px] bg-slate-200 rounded-t-xl overflow-hidden h-[75%] flex items-end">
+                  <div class="bar-fill-urgent w-full bg-gradient-to-t from-rose-600 to-red-500 rounded-t-xl transition-all duration-700 shadow-sm" style="height: 40%;"></div>
+                </div>
+                <span class="text-[11px] font-bold text-slate-700 text-center leading-tight">Urgent Active</span>
+              </div>
+
+              <!-- Bar 2: Under Review -->
+              <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end z-10">
+                <span class="bar-count-review text-xs font-mono font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">2</span>
+                <div class="w-full max-w-[64px] bg-slate-200 rounded-t-xl overflow-hidden h-[75%] flex items-end">
+                  <div class="bar-fill-review w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-xl transition-all duration-700 shadow-sm" style="height: 25%;"></div>
+                </div>
+                <span class="text-[11px] font-bold text-slate-700 text-center leading-tight">Under Review</span>
+              </div>
+
+              <!-- Bar 3: Problems Solved -->
+              <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end z-10">
+                <span class="bar-count-solved text-xs font-mono font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">9</span>
+                <div class="w-full max-w-[64px] bg-slate-200 rounded-t-xl overflow-hidden h-[75%] flex items-end">
+                  <div class="bar-fill-solved w-full bg-gradient-to-t from-emerald-600 to-teal-500 rounded-t-xl transition-all duration-700 shadow-sm" style="height: 75%;"></div>
+                </div>
+                <span class="text-[11px] font-bold text-emerald-700 text-center leading-tight flex items-center gap-0.5">
+                  <span>Problems Solved</span> ✓
+                </span>
+              </div>
+            </div>
+
+            <!-- Stats & Resolution Rate KPI -->
+            <div class="space-y-3 bg-gradient-to-br from-indigo-50/40 to-slate-50 p-4 rounded-xl border border-indigo-100/60">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Remediation Rate</span>
+                <div class="bar-metric-rate text-3xl font-black text-emerald-600 font-mono mt-0.5">75%</div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Automated mitigation & human sign-off</p>
+              </div>
+
+              <div class="space-y-1 pt-2 border-t border-slate-200/80 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Active Queue:</span>
+                  <span class="bar-count-urgent font-mono font-bold text-rose-600">4</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Investigating:</span>
+                  <span class="bar-count-review font-mono font-bold text-amber-600">2</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Problems Solved:</span>
+                  <span class="bar-count-solved font-mono font-bold text-emerald-600">9</span>
+                </div>
+              </div>
+
+              <div class="text-[10px] text-emerald-700 bg-emerald-50/80 px-2 py-1 rounded-lg border border-emerald-200/60 flex items-center gap-1 font-medium">
+                <span>💡 Click "Resolve Alert" below to see the green bar rise!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-Cam Grid Preview on Dashboard -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <span>📹</span> Live Optical Camera Feeds
+            </h3>
+            <button onclick="switchView('monitoring')" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+              AI Video Monitoring Suite →
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- CAM-01 -->
+            <div class="glass-panel rounded-2xl overflow-hidden shadow-xs hover:border-indigo-300 transition">
+              <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-mono font-bold text-slate-900 shrink-0">CAM-01</span>
+                  <span class="text-slate-400">|</span>
+                  <span class="text-slate-700 font-semibold truncate">Playground</span>
+                </div>
+                <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">ONLINE</span>
+              </div>
+              <div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:16px_16px] opacity-40"></div>
+                <div class="absolute left-[20%] top-[25%] w-[25%] h-[55%] border-2 border-emerald-400 rounded bg-emerald-500/15">
+                  <span class="text-[8px] font-mono text-emerald-300 font-bold bg-emerald-950 px-1 rounded -top-3 left-0 absolute">C-017 (94%)</span>
+                </div>
+              </div>
+              <div class="p-2.5 bg-white flex items-center justify-between text-xs text-slate-600">
+                <span>Detections: <strong>2</strong></span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">SAFE</span>
+              </div>
+            </div>
+
+            <!-- CAM-02 -->
+            <div class="glass-panel rounded-2xl overflow-hidden shadow-xs hover:border-indigo-300 transition">
+              <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-mono font-bold text-slate-900 shrink-0">CAM-02</span>
+                  <span class="text-slate-400">|</span>
+                  <span class="text-slate-700 font-semibold truncate">Corridor</span>
+                </div>
+                <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">ONLINE</span>
+              </div>
+              <div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:16px_16px] opacity-40"></div>
+                <div class="absolute left-[30%] top-[22%] w-[28%] h-[56%] border-2 border-emerald-400 rounded bg-emerald-500/15">
+                  <span class="text-[8px] font-mono text-emerald-300 font-bold bg-emerald-950 px-1 rounded -top-3 left-0 absolute">C-001 (96%)</span>
+                </div>
+              </div>
+              <div class="p-2.5 bg-white flex items-center justify-between text-xs text-slate-600">
+                <span>Detections: <strong>1</strong></span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">SAFE</span>
+              </div>
+            </div>
+
+            <!-- CAM-03 -->
+            <div class="glass-panel rounded-2xl overflow-hidden shadow-xs border-rose-300 hover:border-rose-400 transition">
+              <div class="px-3 py-2 bg-rose-50/60 border-b border-rose-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-mono font-bold text-rose-700 shrink-0">CAM-03</span>
+                  <span class="text-rose-300">|</span>
+                  <span class="text-rose-800 font-semibold truncate">Main Gate Highway</span>
+                </div>
+                <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded animate-pulse">BREACH</span>
+              </div>
+              <div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:16px_16px] opacity-40"></div>
+                <div class="absolute left-[34%] top-[20%] w-[32%] h-[60%] border-2 border-rose-500 rounded bg-rose-500/25 animate-pulse">
+                  <span class="text-[8px] font-mono text-rose-200 font-bold bg-rose-950 px-1 rounded -top-3 left-0 absolute">C-017 BREACH</span>
+                </div>
+              </div>
+              <div class="p-2.5 bg-white flex items-center justify-between text-xs text-slate-600">
+                <span>Detections: <strong>1</strong></span>
+                <span class="text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 animate-pulse">HIGH RISK</span>
+              </div>
+            </div>
+
+            <!-- CAM-04 -->
+            <div class="glass-panel rounded-2xl overflow-hidden shadow-xs border-amber-300 hover:border-amber-400 transition">
+              <div class="px-3 py-2 bg-amber-50/60 border-b border-amber-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-mono font-bold text-amber-800 shrink-0">CAM-04</span>
+                  <span class="text-amber-300">|</span>
+                  <span class="text-amber-800 font-semibold truncate">Bus Bay Depot</span>
+                </div>
+                <span class="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">IN-BUS</span>
+              </div>
+              <div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:16px_16px] opacity-40"></div>
+                <div class="absolute left-[28%] top-[24%] w-[32%] h-[54%] border-2 border-amber-400 rounded bg-amber-500/20">
+                  <span class="text-[8px] font-mono text-amber-200 font-bold bg-amber-950 px-1 rounded -top-3 left-0 absolute">C-034 Stationary</span>
+                </div>
+              </div>
+              <div class="p-2.5 bg-white flex items-center justify-between text-xs text-slate-600">
+                <span>Detections: <strong>1</strong></span>
+                <span class="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">MEDIUM RISK</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: AI VIDEO MONITORING & ANALYSIS -->
+      <!-- ========================================== -->
+      <div id="view-monitoring" class="space-y-6 hidden">
+        <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">🎬</span>
+                <h2 class="text-lg font-black text-slate-900 tracking-tight">AI Video Monitoring & Behavioral Analysis Suite</h2>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Upload CCTV files or run simulated scenarios. Optical scans, bounding boxes, posture evaluation, and 5-level risk classifications.
+              </p>
+            </div>
+
+            <!-- Upload & Preset Buttons -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <label class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 cursor-pointer transition flex items-center gap-1.5 shadow-xs">
+                <span>📁 Upload Video File</span>
+                <input type="file" accept="video/*" class="hidden" onchange="handlePreviewFileUpload(event)">
+              </label>
+
+              <button onclick="applyScenarioData('breach')" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition">
+                Demo 1: Perimeter Breach
+              </button>
+              <button onclick="applyScenarioData('fall')" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition">
+                Demo 2: Playground Fall
+              </button>
+              <button onclick="applyScenarioData('normal')" class="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition">
+                Demo 3: Normal Activity
+              </button>
+            </div>
+          </div>
+
+          <!-- Player & Telemetry HUD Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Video Screen -->
+            <div class="lg:col-span-2 space-y-3">
+              <div class="relative aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-300 shadow-inner group">
+                <video id="p-video" class="w-full h-full object-contain hidden" playsinline muted loop></video>
+                <canvas id="p-motion-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+                <!-- CCTV Simulated Canvas -->
+                <div id="p-cctv-sim" class="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center overflow-hidden">
+                  <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:32px_32px] opacity-30"></div>
+
+                  <!-- Optical Scanning Beam -->
+                  <div class="scanner-beam absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_rgba(34,211,238,0.8)] z-10 pointer-events-none"></div>
+
+                  <!-- Dynamic Bounding Boxes -->
+                  <div id="p-box-1" class="absolute left-[20%] top-[25%] w-[26%] h-[55%] border-2 border-emerald-400 rounded-lg bg-emerald-500/10 transition-all duration-700 flex flex-col justify-between p-1.5">
+                    <span class="text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400 self-start">
+                      C-017 [95.8%]
+                    </span>
+                    <span class="text-[9px] font-mono text-emerald-300/80 bg-black/60 px-1 rounded self-end">
+                      TRACKING
+                    </span>
+                  </div>
+
+                  <div id="p-box-2" class="absolute right-[22%] top-[30%] w-[24%] h-[48%] border-2 border-emerald-400 rounded-lg bg-emerald-500/10 transition-all duration-700 flex flex-col justify-between p-1.5">
+                    <span class="text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400 self-start">
+                      C-021 [91.2%]
+                    </span>
+                    <span class="text-[9px] font-mono text-emerald-300/80 bg-black/60 px-1 rounded self-end">
+                      TRACKING
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Video HUD Overlay -->
+                <div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-20">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded bg-red-600 text-white font-mono font-bold text-[10px] tracking-wider animate-pulse">
+                      ● LIVE REC
+                    </span>
+                    <span id="p-hud-risk-badge" class="px-2.5 py-0.5 rounded-md bg-emerald-500 text-white font-bold text-xs shadow-sm">
+                      NO RISK DETECTED
+                    </span>
+                    <span class="text-[10px] font-mono text-cyan-300 bg-black/70 px-2 py-0.5 rounded border border-cyan-800/40">
+                      Energy: <strong id="p-hud-energy">0%</strong>
+                    </span>
+                    <span class="text-[10px] font-mono text-indigo-300 bg-black/70 px-2 py-0.5 rounded border border-indigo-800/40">
+                      Vel: <strong id="p-hud-vel">0 px/f</strong>
+                    </span>
+                  </div>
+                  <div class="text-xs font-mono font-bold text-white bg-black/60 px-2.5 py-1 rounded-lg backdrop-blur-xs">
+                    CONFIDENCE: <span id="p-hud-confidence" class="text-emerald-400">96.4%</span>
+                  </div>
+                </div>
+
+                <!-- Playback controls -->
+                <div class="absolute bottom-3 right-4 flex items-center gap-2 z-20">
+                  <button onclick="toggleVideo()" id="p-play-btn" class="px-3 py-1 rounded-lg bg-white/95 hover:bg-white text-slate-900 font-bold text-xs shadow-md transition flex items-center gap-1">
+                    <span>▶ Play Analysis</span>
+                  </button>
+                  <button onclick="resetVideo()" class="px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-white font-semibold text-xs border border-white/20 transition">
+                    ↺ Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Risk Timeline Segment Bar -->
+              <div class="space-y-1.5 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> Multi-Segment Risk-Level Timeline
+                  </span>
+                  <span id="p-timecode" class="font-mono text-slate-700">00:00 / 00:30 (Frame #0)</span>
+                </div>
+
+                <div class="relative w-full h-3 bg-slate-200 rounded-full overflow-hidden flex cursor-pointer" onclick="seekPreviewTimeline(event)">
+                  <div class="w-[35%] bg-emerald-500 hover:opacity-80 transition" title="00:00 - 00:10: Safe"></div>
+                  <div class="w-[30%] bg-amber-400 hover:opacity-80 transition" title="00:10 - 00:20: Attention"></div>
+                  <div class="w-[35%] bg-rose-500 hover:opacity-80 transition" title="00:20 - 00:30: Breach"></div>
+                  <div id="p-playhead" class="absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_5px_black] left-[0%] transition-all duration-300"></div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono pt-1">
+                  <span>00:00 Safe (Green)</span>
+                  <span>00:10 Warning (Amber)</span>
+                  <span>00:20 Breach (Red)</span>
+                  <span>00:30 Action Protocol</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Telemetry & Verdict Area -->
+            <div class="space-y-4">
+              <!-- Final Result Banner -->
+              <div id="p-verdict-box" class="rounded-2xl border p-4 bg-emerald-50 border-emerald-200 transition-all duration-500">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-800">Final Risk Assessment Result</div>
+                <div id="p-verdict-title" class="text-xl font-black text-emerald-900 mt-1">
+                  No Risk Detected
+                </div>
+                <p id="p-verdict-desc" class="text-xs text-emerald-700 mt-1">
+                  Monitored subjects remain within authorized safety zones.
+                </p>
+              </div>
+
+              <!-- Heuristic Telemetry Metrics -->
+              <div class="glass-panel rounded-2xl p-3.5 space-y-2 text-xs">
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500 font-medium">Model Architecture</span>
+                  <span class="font-mono font-bold text-slate-800">YOLOv8 + ByteTrack</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500 font-medium">Smoothing Filter</span>
+                  <span class="font-mono font-bold text-slate-800">3-Frame Temporal Gate</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500 font-medium">Privacy Status</span>
+                  <span class="font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Pose Only (No Faces)</span>
+                </div>
+                <div class="flex justify-between py-1">
+                  <span class="text-slate-500 font-medium">Inference Latency</span>
+                  <span class="font-mono font-bold text-indigo-600">~18ms / Frame</span>
+                </div>
+              </div>
+
+              <!-- Chronological AI Events Stream -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                  <span>Detected Events Stream</span>
+                  <span class="text-[10px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">Live Telemetry</span>
+                </div>
+                <div id="p-events-stream" class="space-y-2 max-h-[170px] overflow-y-auto pr-1">
+                  <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div>
+                      <span class="font-mono font-bold text-indigo-600">C-017</span>
+                      <p class="text-[11px] text-slate-600">Pose tracking active in Safe Zone</p>
+                    </div>
+                    <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">SAFE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: LIVE CAMERA WALL -->
+      <!-- ========================================== -->
+      <div id="view-cameras" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Campus Surveillance Camera Array</h2>
+            <p class="text-xs text-slate-500 mt-0.5">12 cameras provisioned across playground, academic, and transit perimeter</p>
+          </div>
+          <span class="text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full">
+            ● 12 OF 12 CAMERAS SYNCHRONIZED
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+          <!-- Big CAM 01 -->
+          <div class="glass-panel rounded-2xl overflow-hidden shadow-xs">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-sm text-slate-900">CAM-01</span>
+                <span class="text-slate-400">|</span>
+                <span class="font-semibold text-xs text-slate-700">Main Playground Overwatch</span>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">LIVE 1080P</span>
+            </div>
+            <div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+              <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:24px_24px] opacity-40"></div>
+              <div class="absolute left-[25%] top-[20%] w-[30%] h-[60%] border-2 border-emerald-400 rounded-lg bg-emerald-500/10 flex flex-col justify-between p-2">
+                <span class="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded self-start">C-017 [96.4%]</span>
+                <span class="text-[9px] font-mono text-emerald-300/80 bg-black/60 px-1 rounded self-end">SAFE ZONE</span>
+              </div>
+            </div>
+            <div class="p-3.5 bg-white flex items-center justify-between text-xs text-slate-600">
+              <span>Sensor: <strong>Sony IMX Starvis 4K</strong></span>
+              <span class="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">NO RISK DETECTED</span>
+            </div>
+          </div>
+
+          <!-- Big CAM 03 (Breach) -->
+          <div class="glass-panel rounded-2xl overflow-hidden shadow-xs border-rose-300">
+            <div class="px-4 py-3 bg-rose-50/70 border-b border-rose-200 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-sm text-rose-700">CAM-03</span>
+                <span class="text-rose-300">|</span>
+                <span class="font-semibold text-xs text-rose-800">Main Highway Perimeter Gate</span>
+              </div>
+              <span class="text-[10px] font-bold text-rose-700 bg-rose-100 border border-rose-300 px-2 py-0.5 rounded-full animate-pulse">RESTRICTED BREACH</span>
+            </div>
+            <div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
+              <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:24px_24px] opacity-40"></div>
+              <div class="absolute left-[30%] top-[15%] w-[35%] h-[68%] border-2 border-rose-500 rounded-lg bg-rose-500/25 animate-pulse flex flex-col justify-between p-2">
+                <span class="text-[10px] font-mono font-bold text-rose-200 bg-rose-950 px-1.5 py-0.5 rounded self-start">C-017 BREACH [95.8%]</span>
+                <span class="text-[9px] font-mono text-rose-300 bg-black/60 px-1 rounded self-end">RESTRICTED HIGHWAY</span>
+              </div>
+            </div>
+            <div class="p-3.5 bg-white flex items-center justify-between text-xs text-slate-600">
+              <span>Geofence: <strong>Main Road Zone (Polygon 4)</strong></span>
+              <span class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 animate-pulse">HIGH RISK ALERT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: CHILDREN REGISTRY -->
+      <!-- ========================================== -->
+      <div id="view-children" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Children Safety Registry</h2>
+            <p class="text-xs text-slate-500 mt-0.5">128 anonymous tokens tracked without biometric facial storage</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+            Token Range: C-001 .. C-128
+          </span>
+        </div>
+
+        <div class="glass-panel rounded-2xl overflow-hidden shadow-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                <tr>
+                  <th class="px-4 py-3">Child Token</th>
+                  <th class="px-4 py-3">Safety Status</th>
+                  <th class="px-4 py-3">Current Zone</th>
+                  <th class="px-4 py-3">Risk Level</th>
+                  <th class="px-4 py-3">Confidence</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50/60 transition">
+                  <td class="px-4 py-3 font-mono font-bold text-indigo-700">C-001</td>
+                  <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SAFE</span></td>
+                  <td class="px-4 py-3 font-semibold text-slate-700">Main Playground</td>
+                  <td class="px-4 py-3"><span class="font-bold text-emerald-600">0 / 100</span></td>
+                  <td class="px-4 py-3 font-mono">98.4%</td>
+                  <td class="px-4 py-3 text-right"><button onclick="alert('Child C-001: Verified within Playground Safe Zone bounds.')" class="text-indigo-600 font-bold hover:underline">Inspect</button></td>
+                </tr>
+
+                <tr class="hover:bg-rose-50/30 transition bg-rose-50/10">
+                  <td class="px-4 py-3 font-mono font-bold text-rose-700">C-017</td>
+                  <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">BREACH</span></td>
+                  <td class="px-4 py-3 font-semibold text-rose-800">Main Gate Highway Boundary</td>
+                  <td class="px-4 py-3"><span class="font-bold text-rose-600">85 / 100 (HIGH)</span></td>
+                  <td class="px-4 py-3 font-mono">95.8%</td>
+                  <td class="px-4 py-3 text-right"><button onclick="alert('Child C-017: Crossed restricted fence toward road at 10:32 AM.')" class="text-rose-700 font-bold hover:underline">Inspect Incident</button></td>
+                </tr>
+
+                <tr class="hover:bg-rose-50/30 transition bg-rose-50/10">
+                  <td class="px-4 py-3 font-mono font-bold text-rose-700">C-021</td>
+                  <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-300 animate-pulse">FALL DETECTED</span></td>
+                  <td class="px-4 py-3 font-semibold text-rose-800">Playground Turf</td>
+                  <td class="px-4 py-3"><span class="font-bold text-rose-600">90 / 100 (CRITICAL)</span></td>
+                  <td class="px-4 py-3 font-mono">97.2%</td>
+                  <td class="px-4 py-3 text-right"><button onclick="alert('Child C-021: Ground recumbent posture collapsed >10s.')" class="text-rose-700 font-bold hover:underline">Inspect Incident</button></td>
+                </tr>
+
+                <tr class="hover:bg-amber-50/30 transition bg-amber-50/10">
+                  <td class="px-4 py-3 font-mono font-bold text-amber-700">C-034</td>
+                  <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">IN-CABIN</span></td>
+                  <td class="px-4 py-3 font-semibold text-amber-900">School Bus Bay 2</td>
+                  <td class="px-4 py-3"><span class="font-bold text-amber-600">65 / 100 (MEDIUM)</span></td>
+                  <td class="px-4 py-3 font-mono">98.1%</td>
+                  <td class="px-4 py-3 text-right"><button onclick="alert('Child C-034: Stationary inside bus post route completion.')" class="text-amber-800 font-bold hover:underline">Inspect Incident</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 5: CAMPUS GEOFENCE MAP -->
+      <!-- ========================================== -->
+      <div id="view-map" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Campus Geofence Safety Map</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Multi-polygon perimeter tracking with active coordinate verification</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-semibold">
+            <span class="text-emerald-700 flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Safe</span>
+            <span class="text-amber-700 flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Warning</span>
+            <span class="text-rose-700 flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Restricted</span>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 shadow-xs">
+          <div class="relative aspect-[16/10] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden p-3 flex flex-col justify-between select-none">
+            <svg class="w-full h-full" viewBox="0 0 600 380">
+              <!-- Safe Zone 1: Main Playground -->
+              <rect x="30" y="40" width="240" height="150" rx="14" fill="rgba(16, 185, 129, 0.08)" stroke="#10B981" stroke-width="2" />
+              <text x="45" y="70" fill="#047857" font-size="13" font-family="sans-serif" font-weight="bold">Playground Zone (Safe)</text>
+              <text x="45" y="90" fill="#065F46" font-size="10" font-family="monospace">Boundary: Poly-1 • Camera CAM-01</text>
+
+              <!-- Safe Zone 2: Academic Block -->
+              <rect x="320" y="40" width="250" height="150" rx="14" fill="rgba(16, 185, 129, 0.08)" stroke="#10B981" stroke-width="2" />
+              <text x="335" y="70" fill="#047857" font-size="13" font-family="sans-serif" font-weight="bold">Academic Center (Safe)</text>
+              <text x="335" y="90" fill="#065F46" font-size="10" font-family="monospace">Boundary: Poly-2 • Camera CAM-02</text>
+
+              <!-- Warning Zone: Bus Depot -->
+              <rect x="30" y="220" width="240" height="130" rx="14" fill="rgba(245, 158, 11, 0.08)" stroke="#F59E0B" stroke-width="2" stroke-dasharray="5" />
+              <text x="45" y="250" fill="#B45309" font-size="13" font-family="sans-serif" font-weight="bold">Bus Transit Depot (Warning)</text>
+              <text x="45" y="270" fill="#92400E" font-size="10" font-family="monospace">Boundary: Poly-3 • Camera CAM-04</text>
+
+              <!-- Restricted Zone: Highway Gate -->
+              <rect x="320" y="220" width="250" height="130" rx="14" fill="rgba(239, 68, 68, 0.08)" stroke="#EF4444" stroke-width="2" stroke-dasharray="4" />
+              <text x="335" y="250" fill="#B91C1C" font-size="13" font-family="sans-serif" font-weight="bold">Highway Main Gate (Restricted)</text>
+              <text x="335" y="270" fill="#991B1B" font-size="10" font-family="monospace">Boundary: Poly-4 • Camera CAM-03</text>
+
+              <!-- Child Markers -->
+              <!-- C-001 in Playground -->
+              <circle cx="120" cy="120" r="15" fill="#10B981" stroke="#FFF" stroke-width="2.5" />
+              <text x="120" y="124" fill="#FFF" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">C-001</text>
+
+              <!-- C-021 in Playground turf -->
+              <circle cx="200" cy="140" r="15" fill="#EF4444" stroke="#FFF" stroke-width="2.5" class="animate-pulse" />
+              <text x="200" y="144" fill="#FFF" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">C-021</text>
+
+              <!-- C-017 at Gate Breach -->
+              <circle cx="430" cy="280" r="16" fill="#EF4444" stroke="#FFF" stroke-width="3" class="animate-pulse" />
+              <text x="430" y="284" fill="#FFF" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">C-017</text>
+
+              <!-- C-034 in Bus -->
+              <circle cx="140" cy="290" r="15" fill="#F59E0B" stroke="#FFF" stroke-width="2.5" />
+              <text x="140" y="294" fill="#FFF" font-size="9" font-family="monospace" font-weight="bold" text-anchor="middle">C-034</text>
+            </svg>
+
+            <div class="text-[10px] text-slate-500 font-mono text-center pt-2 border-t border-slate-200">
+              Campus Geofence Anchor: (37.7749° N, 122.4194° W) • Dynamic Point-in-Polygon Engine Active
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 6: SAFETY ALERTS & INCIDENTS -->
+      <!-- ========================================== -->
+      <div id="view-alerts" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Active Incident Dispatch Center</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Clicking "Resolve" dynamically decrements the active count across the system</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+            Auto-decrement on Resolve
+          </span>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 shadow-xs space-y-4">
+          <div id="alerts-page-queue" class="space-y-3">
+            <div id="p-inc-1" class="p-4 bg-white border border-rose-200 rounded-2xl flex items-center justify-between shadow-xs">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-bold text-rose-700 text-xs">C-017</span>
+                  <span class="font-bold text-sm text-slate-900">Perimeter Breach: Main Gate</span>
+                  <span class="text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full">HIGH RISK</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Child crossed perimeter highway boundary line.</p>
+                <div class="text-[10px] text-slate-400 font-mono mt-1">Camera CAM-03 • 10:32 AM</div>
+              </div>
+              <button onclick="resolveQueueItem('p-inc-1')" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 transition">
+                Resolve Alert
+              </button>
+            </div>
+
+            <div id="p-inc-2" class="p-4 bg-white border border-rose-200 rounded-2xl flex items-center justify-between shadow-xs">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-bold text-rose-700 text-xs">C-021</span>
+                  <span class="font-bold text-sm text-slate-900">Fall Detected: Playground Turf</span>
+                  <span class="text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full">CRITICAL RISK</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Sudden recumbent posture on turf without recovery for >10s.</p>
+                <div class="text-[10px] text-slate-400 font-mono mt-1">Camera CAM-01 • 10:28 AM</div>
+              </div>
+              <button onclick="resolveQueueItem('p-inc-2')" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 transition">
+                Resolve Alert
+              </button>
+            </div>
+
+            <div id="p-inc-3" class="p-4 bg-white border border-amber-200 rounded-2xl flex items-center justify-between shadow-xs">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-bold text-amber-700 text-xs">C-034</span>
+                  <span class="font-bold text-sm text-slate-900">Child Left Behind: Bus Bay 2</span>
+                  <span class="text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full">MEDIUM RISK</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Vehicle parked at depot; child remains detected inside cabin.</p>
+                <div class="text-[10px] text-slate-400 font-mono mt-1">Camera CAM-04 • 10:20 AM</div>
+              </div>
+              <button onclick="resolveQueueItem('p-inc-3')" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 transition">
+                Resolve Alert
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 7: REPORTS & ANALYTICS -->
+      <!-- ========================================== -->
+      <div id="view-reports" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Safety Compliance & Analytics</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Historical incident metrics, mean resolution time, and export tools</p>
+          </div>
+          <button onclick="alert('Exporting safety audit CSV for PRISMTECH 2026 presentation...')" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition flex items-center gap-1.5">
+            <span>📥 Export Safety CSV</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="text-xs text-slate-500 font-bold uppercase">Average Response Time</div>
+            <div class="text-3xl font-black text-slate-900 mt-1">42s</div>
+            <p class="text-xs text-emerald-600 mt-1 font-semibold">↓ 18s improvement vs benchmark</p>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="text-xs text-slate-500 font-bold uppercase">Geofence Compliance</div>
+            <div class="text-3xl font-black text-slate-900 mt-1">99.2%</div>
+            <p class="text-xs text-indigo-600 mt-1 font-semibold">Verified Safe Zone Occupancy</p>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="text-xs text-slate-500 font-bold uppercase">False Positive Rate</div>
+            <div class="text-3xl font-black text-slate-900 mt-1">&lt; 1.4%</div>
+            <p class="text-xs text-emerald-600 mt-1 font-semibold">Buffered by 3-frame temporal gate</p>
+          </div>
+        </div>
+
+        <!-- Live Problem Resolution Bar Chart on Reports -->
+        <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  REACTIVE ANALYTICS
+                </span>
+                <h3 class="text-base font-black text-slate-900">Incident Remediation & Problem Resolution Bar Graph</h3>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Real-time tracking of mitigated threats vs unresolved alerts across all 12 optical campus zones.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                onclick="quickResolvePreviewProblem()"
+                class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                title="Click to resolve problem and watch green bar rise!"
+              >
+                <span>✓ Solve Problem (+1 Solved)</span>
+              </button>
+              <button
+                onclick="simulatePreviewIncident()"
+                class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition cursor-pointer"
+                title="Add an issue to see the red bar climb"
+              >
+                <span>+ Issue</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center pt-2">
+            <!-- Vertical Bar Chart visualization with CSS transitions -->
+            <div class="md:col-span-3 h-52 bg-slate-50/60 rounded-xl border border-slate-100 p-4 flex items-end justify-around gap-6 relative">
+              <div class="absolute inset-x-4 top-4 border-b border-slate-200/60 border-dashed text-[9px] text-slate-400 font-mono flex justify-end">Max</div>
+              <div class="absolute inset-x-4 top-1/2 border-b border-slate-200/60 border-dashed text-[9px] text-slate-400 font-mono flex justify-end">Mid</div>
+
+              <!-- Bar 1: Urgent Unresolved -->
+              <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end z-10">
+                <span class="bar-count-urgent text-xs font-mono font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">4</span>
+                <div class="w-full max-w-[64px] bg-slate-200 rounded-t-xl overflow-hidden h-[75%] flex items-end">
+                  <div class="bar-fill-urgent w-full bg-gradient-to-t from-rose-600 to-red-500 rounded-t-xl transition-all duration-700 shadow-sm" style="height: 40%;"></div>
+                </div>
+                <span class="text-[11px] font-bold text-slate-700 text-center leading-tight">Urgent Active</span>
+              </div>
+
+              <!-- Bar 2: Under Review -->
+              <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end z-10">
+                <span class="bar-count-review text-xs font-mono font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">2</span>
+                <div class="w-full max-w-[64px] bg-slate-200 rounded-t-xl overflow-hidden h-[75%] flex items-end">
+                  <div class="bar-fill-review w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-xl transition-all duration-700 shadow-sm" style="height: 25%;"></div>
+                </div>
+                <span class="text-[11px] font-bold text-slate-700 text-center leading-tight">Under Review</span>
+              </div>
+
+              <!-- Bar 3: Problems Solved -->
+              <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end z-10">
+                <span class="bar-count-solved text-xs font-mono font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">9</span>
+                <div class="w-full max-w-[64px] bg-slate-200 rounded-t-xl overflow-hidden h-[75%] flex items-end">
+                  <div class="bar-fill-solved w-full bg-gradient-to-t from-emerald-600 to-teal-500 rounded-t-xl transition-all duration-700 shadow-sm" style="height: 75%;"></div>
+                </div>
+                <span class="text-[11px] font-bold text-emerald-700 text-center leading-tight flex items-center gap-0.5">
+                  <span>Problems Solved</span> ✓
+                </span>
+              </div>
+            </div>
+
+            <!-- Stats & Resolution Rate KPI -->
+            <div class="space-y-3 bg-gradient-to-br from-indigo-50/40 to-slate-50 p-4 rounded-xl border border-indigo-100/60">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Remediation Rate</span>
+                <div class="bar-metric-rate text-3xl font-black text-emerald-600 font-mono mt-0.5">75%</div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Verified Safe Protocol Status</p>
+              </div>
+
+              <div class="space-y-1 pt-2 border-t border-slate-200/80 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Active Queue:</span>
+                  <span class="bar-count-urgent font-mono font-bold text-rose-600">4</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Investigating:</span>
+                  <span class="bar-count-review font-mono font-bold text-amber-600">2</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-600">Problems Solved:</span>
+                  <span class="bar-count-solved font-mono font-bold text-emerald-600">9</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 8: ADMIN & SETTINGS -->
+      <!-- ========================================== -->
+      <div id="view-admin" class="space-y-6 hidden">
+        <div>
+          <h2 class="text-2xl font-black text-slate-900 tracking-tight">System Administration & AI Calibration</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Configure temporal smoothing windows, camera endpoints, and privacy policies</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-6 shadow-xs space-y-6">
+          <div class="space-y-4">
+            <h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">AI Heuristic Verification</h3>
+            <div>
+              <label class="text-xs font-semibold text-slate-700">Temporal Window Persistence Filter: <strong id="admin-win-val" class="text-indigo-600 font-mono">3 Frames</strong></label>
+              <input type="range" min="1" max="10" value="3" oninput="document.getElementById('admin-win-val').innerText = this.value + ' Frames'" class="w-full accent-indigo-600 mt-2">
+              <p class="text-[11px] text-slate-500 mt-1">Requires an anomaly to persist for 3 evaluation frames before dispatching high-priority staff alerts.</p>
+            </div>
+          </div>
+
+          <div class="space-y-4 pt-4 border-t border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">Privacy & Retention Policy</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-slate-700">Log Purge Schedule</label>
+                <select class="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+                  <option>14 Days (Standard Audit)</option>
+                  <option>7 Days (Strict Minimal)</option>
+                  <option>30 Days (Extended)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-700">Facial Recognition Collection</label>
+                <div class="mt-1.5 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-bold flex items-center gap-1.5">
+                  ✓ Disabled by Design (Zero Face Biometrics)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 9: LOGIN & PERSONAS -->
+      <!-- ========================================== -->
+      <div id="view-login" class="space-y-6 hidden">
+        <div class="max-w-xl mx-auto space-y-6 py-4">
+          <!-- Branding Header -->
+          <div class="text-center">
+            <div class="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 items-center justify-center shadow-lg shadow-indigo-600/25 mb-3 text-white text-2xl">
+              🛡️
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              ChildGuard <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono">AI</span>
+            </h2>
+            <p class="text-xs text-indigo-700 font-bold uppercase tracking-wider mt-1 font-mono">
+              Detect • Assess • Alert • Protect
+            </p>
+            <p class="text-xs text-slate-500 mt-1 font-medium">
+              AI-Powered Child Safety Ecosystem • PRISMTECH 2026 Social Stream
+            </p>
+          </div>
+
+          <!-- Login Card -->
+          <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-6">
+            <div class="pb-4 border-b border-slate-100">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-indigo-700 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                  Authorized Personnel Sign In
+                </span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 2FA Ready
+                </span>
+              </div>
+              <h3 class="text-lg font-black text-slate-900 mt-2">Sign in to Safety Console</h3>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Select an authorized persona below or submit your campus credentials:
+              </p>
+            </div>
+
+            <!-- 1-Click Persona Presets (Admin & Security) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                id="login-preset-admin"
+                onclick="selectLoginPersona('Admin')"
+                class="p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-gradient-to-br from-indigo-50 to-violet-50/50 border-indigo-500 text-indigo-900 shadow-sm"
+              >
+                <div class="flex items-center justify-between font-bold text-slate-900">
+                  <span class="flex items-center gap-1.5">
+                    <span>👑</span> System Administrator
+                  </span>
+                  <span id="preset-admin-check" class="text-indigo-600 font-bold">✓</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1 font-mono truncate">
+                  admin@childguard.ai
+                </p>
+                <p class="text-[10px] text-slate-400 mt-0.5">
+                  Full security config, policy tuning & telemetry
+                </p>
+                <div id="preset-admin-bar" class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
+              </button>
+
+              <button
+                type="button"
+                id="login-preset-sec"
+                onclick="selectLoginPersona('Security')"
+                class="p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-slate-50/80 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/60"
+              >
+                <div class="flex items-center justify-between font-bold text-slate-900">
+                  <span class="flex items-center gap-1.5">
+                    <span>🛡️</span> Campus Security
+                  </span>
+                  <span id="preset-sec-check" class="text-indigo-600 font-bold hidden">✓</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1 font-mono truncate">
+                  security@childguard.ai
+                </p>
+                <p class="text-[10px] text-slate-400 mt-0.5">
+                  Live optical monitoring, dispatch & alerts
+                </p>
+                <div id="preset-sec-bar" class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-violet-600 hidden"></div>
+              </button>
+            </div>
+
+            <!-- Login Form -->
+            <form onsubmit="handlePreviewLogin(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                  Authorized Personnel Email
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">✉️</span>
+                  <input
+                    type="email"
+                    id="preview-login-email"
+                    value="admin@childguard.ai"
+                    required
+                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl text-xs sm:text-sm text-slate-900 font-medium transition shadow-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                  Security Passcode
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔒</span>
+                  <input
+                    type="password"
+                    id="preview-login-pass"
+                    value="admin123"
+                    required
+                    class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl text-xs sm:text-sm text-slate-900 font-medium transition shadow-xs focus:outline-none font-mono"
+                  />
+                  <button
+                    type="button"
+                    onclick="togglePreviewPasswordVisibility()"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  >
+                    👁
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                  <span>Keep session authenticated</span>
+                </label>
+                <span class="text-indigo-600 font-medium">Session: Encrypted AES-256</span>
+              </div>
+
+              <button
+                type="submit"
+                id="preview-login-submit-btn"
+                class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Sign In to Safety Console</span>
+                <span>→</span>
+              </button>
+            </form>
+
+            <!-- Privacy & Compliance Notice -->
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                <span class="flex items-center gap-1.5">
+                  <span class="text-emerald-500 font-bold">✓</span> Privacy-First Child Safety Architecture
+                </span>
+                <span class="text-[10px] font-mono text-indigo-600 font-semibold">PRISMTECH 2026</span>
+              </div>
+              <p class="text-[10px] text-slate-500 leading-relaxed">
+                Zero facial recognition or biometric profiles stored. System processes pose vectors and spatial boundary events in real time.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 9: LOGIN & AUTHORIZED PERSONAS -->
+      <!-- ========================================== -->
+      <div id="view-login" class="space-y-6 py-4 max-w-xl mx-auto">
+        <!-- Branding & Header -->
+        <div class="text-center space-y-2">
+          <div class="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 items-center justify-center shadow-lg shadow-indigo-600/25 text-white text-3xl">
+            🛡️
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            ChildGuard <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono">AI</span>
+          </h2>
+          <p class="text-xs font-mono font-bold text-indigo-700 uppercase tracking-wider">
+            Detect • Assess • Alert • Protect
+          </p>
+          <p class="text-xs text-slate-500 font-medium">
+            AI-Powered Child Monitoring & Safety Ecosystem • PRISMTECH 2026
+          </p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-6">
+          <div class="pb-4 border-b border-slate-100">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-indigo-700 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                Authorized Personnel Sign In
+              </span>
+              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 2FA Ready
+              </span>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 mt-2">Sign in to Safety Console</h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Select an authorized 1-click persona below or enter your credentials:
+            </p>
+          </div>
+
+          <!-- 1-Click Persona Presets (Admin & Security) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Admin Preset -->
+            <div id="login-preset-admin" onclick="selectLoginPersona('Admin')" class="p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-gradient-to-br from-indigo-50 to-violet-50/50 border-indigo-500 text-indigo-900 shadow-sm">
+              <div id="preset-admin-bar" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
+              <div class="flex items-center justify-between font-bold">
+                <span class="text-sm">👑 System Admin</span>
+                <span id="preset-admin-check" class="text-indigo-600 font-bold">✓</span>
+              </div>
+              <div class="font-mono text-[11px] text-slate-600 mt-1">admin@childguard.ai</div>
+              <p class="text-[10px] text-slate-500 mt-1">Full campus telemetry, policy tuning & command center</p>
+            </div>
+
+            <!-- Security Preset -->
+            <div id="login-preset-sec" onclick="selectLoginPersona('Security')" class="p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-slate-50/80 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/60">
+              <div id="preset-sec-bar" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-violet-600 hidden"></div>
+              <div class="flex items-center justify-between font-bold">
+                <span class="text-sm">👮 Campus Security</span>
+                <span id="preset-sec-check" class="text-indigo-600 font-bold hidden">✓</span>
+              </div>
+              <div class="font-mono text-[11px] text-slate-600 mt-1">security@childguard.ai</div>
+              <p class="text-[10px] text-slate-500 mt-1">Real-time CCTV optical analysis & incident response</p>
+            </div>
+          </div>
+
+          <!-- Login Form -->
+          <form onsubmit="handlePreviewLogin(event)" class="space-y-4">
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-slate-700">Official Staff Email Address</label>
+              <input id="preview-login-email" type="email" value="admin@childguard.ai" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-slate-50 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700">Console Security Password</label>
+                <span class="text-[10px] text-slate-400 font-mono">Demo: admin123</span>
+              </div>
+              <div class="relative">
+                <input id="preview-login-pass" type="password" value="admin123" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-slate-50 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition pr-10" />
+                <button type="button" onclick="togglePreviewPasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs cursor-pointer">👁️</button>
+              </div>
+            </div>
+
+            <button id="preview-login-submit-btn" type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-500 hover:to-violet-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition flex items-center justify-center gap-2 cursor-pointer">
+              <span>Sign In to Safety Console</span>
+              <span>→</span>
+            </button>
+          </form>
+
+          <!-- Security Badge Notice -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center gap-3 text-xs text-slate-500">
+            <span class="text-lg">🔒</span>
+            <span class="text-[11px] leading-tight">
+              Strictly restricted to registered campus security personnel. All actions audited under PRISMTECH compliance.
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Global Footer -->
+  <footer class="mt-auto border-t border-slate-200/80 bg-white/70 py-4 px-6 text-center text-xs text-slate-500">
+    ChildGuard AI — PRISMTECH 2026 Social Stream • AI-Powered Child Monitoring & Safety Ecosystem • Human supervision remains mandatory.
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    let globalActiveAlerts = 4;
+    let globalHighRisk = 2;
+    let autoDemoInterval = null;
+    let currentVideoSec = 0;
+    let videoAnalysisInterval = null;
+    const maxVideoDuration = 30;
+
+    const scenarioConfigs = {
+      breach: {
+        title: 'Perimeter Breach Detected',
+        desc: 'Child C-017 crossed perimeter fence toward Main Highway road.',
+        id: 'C-017',
+        badge: 'HIGH RISK',
+        verdict: 'High Risk',
+        verdictClass: 'bg-rose-50 border-rose-200 text-rose-900',
+        verdictSub: 'Child C-017 breached highway perimeter gate.',
+        hudBadge: 'HIGH RISK',
+        hudBadgeClass: 'bg-rose-600 text-white animate-pulse',
+        confidence: '95.8%',
+        box1Border: 'border-rose-500 bg-rose-500/25 animate-pulse',
+        box1Text: 'C-017 BREACH [95.8%]',
+        box2Border: 'border-emerald-400 bg-emerald-500/10',
+        box2Text: 'C-021 [91.2%]'
+      },
+      fall: {
+        title: 'Child Fall & Posture Collapse',
+        desc: 'Sudden vertical drop detected for C-021; posture recumbent >10s.',
+        id: 'C-021',
+        badge: 'CRITICAL RISK',
+        verdict: 'Critical Risk',
+        verdictClass: 'bg-rose-50 border-rose-200 text-rose-900',
+        verdictSub: 'Child C-021 remains recumbent on Playground turf.',
+        hudBadge: 'CRITICAL RISK',
+        hudBadgeClass: 'bg-rose-700 text-white animate-pulse',
+        confidence: '97.2%',
+        box1Border: 'border-emerald-400 bg-emerald-500/10',
+        box1Text: 'C-017 [94.1%]',
+        box2Border: 'border-rose-600 bg-rose-600/30 animate-pulse',
+        box2Text: 'C-021 FALL RECUMBENT [97.2%]'
+      },
+      bus: {
+        title: 'Child Left Behind in Bus',
+        desc: 'Stationary occupancy detected in vehicle post-route completion.',
+        id: 'C-034',
+        badge: 'MEDIUM RISK',
+        verdict: 'Medium Risk',
+        verdictClass: 'bg-amber-50 border-amber-200 text-amber-900',
+        verdictSub: 'Child C-034 detected inside parked school bus.',
+        hudBadge: 'MEDIUM RISK',
+        hudBadgeClass: 'bg-amber-500 text-white',
+        confidence: '98.1%',
+        box1Border: 'border-amber-400 bg-amber-500/20',
+        box1Text: 'C-034 IN-CABIN [98.1%]',
+        box2Border: 'border-emerald-400 bg-emerald-500/10',
+        box2Text: 'EMPTY [99%]'
+      },
+      normal: {
+        title: 'Safe Zone Verified',
+        desc: 'All monitored subjects are active within safe bounds.',
+        id: 'C-001',
+        badge: 'LOW RISK',
+        verdict: 'No Risk Detected',
+        verdictClass: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+        verdictSub: 'All monitored children remain safely within green zones.',
+        hudBadge: 'NO RISK DETECTED',
+        hudBadgeClass: 'bg-emerald-500 text-white',
+        confidence: '98.5%',
+        box1Border: 'border-emerald-400 bg-emerald-500/10',
+        box1Text: 'C-017 [98.5%]',
+        box2Border: 'border-emerald-400 bg-emerald-500/10',
+        box2Text: 'C-021 [96.9%]'
+      }
+    };
+
+    function switchView(viewName) {
+      const views = ['dashboard', 'monitoring', 'cameras', 'children', 'map', 'alerts', 'reports', 'admin', 'login'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        const btn = document.getElementById('nav-' + v);
+        if (el) {
+          if (v === viewName) {
+            el.classList.remove('hidden');
+            if (viewName === 'monitoring') {
+              applyScenarioData('breach');
+            }
+          } else {
+            el.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          if (v === viewName) {
+            btn.className = "nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-left bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-600/20";
+          } else {
+            btn.className = "nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+          }
+        }
+      });
+
+      const scenarioBar = document.getElementById('scenario-bar');
+      if (scenarioBar) {
+        if (viewName === 'login') {
+          scenarioBar.classList.add('hidden');
+        } else {
+          scenarioBar.classList.remove('hidden');
+        }
+      }
+    }
+
+    function injectScenario(type) {
+      const conf = scenarioConfigs[type];
+      globalActiveAlerts++;
+      if (type !== 'bus') globalHighRisk++;
+      updateCountsUI();
+
+      showToast(conf.id, conf.title, conf.desc, conf.badge);
+      applyScenarioData(type);
+    }
+
+    function applyScenarioData(type) {
+      const conf = scenarioConfigs[type];
+      
+      // Update verdict card
+      const vBox = document.getElementById('p-verdict-box');
+      if (vBox) {
+        vBox.className = `rounded-2xl border p-4 transition-all duration-500 ${conf.verdictClass}`;
+        document.getElementById('p-verdict-title').innerText = conf.verdict;
+        document.getElementById('p-verdict-desc').innerText = conf.verdictSub;
+      }
+
+      // Update HUD
+      const hBadge = document.getElementById('p-hud-risk-badge');
+      if (hBadge) {
+        hBadge.className = `px-2.5 py-0.5 rounded-md font-bold text-xs shadow-sm ${conf.hudBadgeClass}`;
+        hBadge.innerText = conf.hudBadge;
+        document.getElementById('p-hud-confidence').innerText = conf.confidence;
+      }
+
+      // Update Bounding Boxes
+      const b1 = document.getElementById('p-box-1');
+      if (b1) {
+        b1.className = `absolute left-[20%] top-[25%] w-[26%] h-[55%] border-2 rounded-lg transition-all duration-700 flex flex-col justify-between p-1.5 ${conf.box1Border}`;
+        b1.querySelector('span').innerText = conf.box1Text;
+      }
+
+      const b2 = document.getElementById('p-box-2');
+      if (b2) {
+        b2.className = `absolute right-[22%] top-[30%] w-[24%] h-[48%] border-2 rounded-lg transition-all duration-700 flex flex-col justify-between p-1.5 ${conf.box2Border}`;
+        b2.querySelector('span').innerText = conf.box2Text;
+      }
+    }
+
+    function showToast(id, title, desc, badgeText) {
+      document.getElementById('toast-id').innerText = id;
+      document.getElementById('toast-title').innerText = title;
+      document.getElementById('toast-desc').innerText = desc;
+      document.getElementById('toast-badge').innerText = badgeText;
+
+      const toast = document.getElementById('toast-container');
+      toast.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-x-0', 'opacity-100', 'pointer-events-auto');
+
+      setTimeout(dismissToast, 6000);
+    }
+
+    function dismissToast() {
+      const toast = document.getElementById('toast-container');
+      toast.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+      toast.classList.remove('translate-x-0', 'opacity-100', 'pointer-events-auto');
+    }
+
+    function resolveToastAlert() {
+      dismissToast();
+      decrementAlertCount();
+    }
+
+    function resolveQueueItem(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.opacity = '0.35';
+        el.style.pointerEvents = 'none';
+        const btn = el.querySelector('button');
+        if (btn) {
+          btn.innerText = '✓ Resolved';
+          btn.className = 'px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200';
+        }
+      }
+      decrementAlertCount();
+    }
+
+    let pUrgentCount = 4;
+    let pReviewCount = 2;
+    let pSolvedCount = 9;
+
+    function updatePreviewBarGraphs() {
+      const total = pUrgentCount + pReviewCount + pSolvedCount;
+      const maxVal = Math.max(14, total, pUrgentCount, pReviewCount, pSolvedCount);
+      const ratePct = total > 0 ? Math.round((pSolvedCount / total) * 100) : 100;
+
+      const uEls = document.querySelectorAll('.bar-count-urgent');
+      const rEls = document.querySelectorAll('.bar-count-review');
+      const sEls = document.querySelectorAll('.bar-count-solved');
+      const rateEls = document.querySelectorAll('.bar-metric-rate');
+
+      uEls.forEach(el => el.innerText = pUrgentCount);
+      rEls.forEach(el => el.innerText = pReviewCount);
+      sEls.forEach(el => el.innerText = pSolvedCount);
+      rateEls.forEach(el => el.innerText = ratePct + '%');
+
+      const uBars = document.querySelectorAll('.bar-fill-urgent');
+      const rBars = document.querySelectorAll('.bar-fill-review');
+      const sBars = document.querySelectorAll('.bar-fill-solved');
+
+      const uPct = Math.round((pUrgentCount / maxVal) * 100);
+      const rPct = Math.round((pReviewCount / maxVal) * 100);
+      const sPct = Math.round((pSolvedCount / maxVal) * 100);
+
+      uBars.forEach(b => b.style.height = `${Math.max(10, uPct)}%`);
+      rBars.forEach(b => b.style.height = `${Math.max(10, rPct)}%`);
+      sBars.forEach(b => b.style.height = `${Math.max(10, sPct)}%`);
+    }
+
+    function quickResolvePreviewProblem() {
+      if (pUrgentCount > 0) {
+        pUrgentCount--;
+      } else if (pReviewCount > 0) {
+        pReviewCount--;
+      }
+      pSolvedCount++;
+      if (globalActiveAlerts > 0) globalActiveAlerts--;
+      if (globalHighRisk > 0 && globalActiveAlerts < 3) globalHighRisk--;
+      updateCountsUI();
+      updatePreviewBarGraphs();
+      showToast('RES-001', 'Problem Solved & Mitigated', 'Incident resolved. Live bar graph updated: +1 Problems Solved.', 'RESOLVED');
+    }
+
+    function simulatePreviewIncident() {
+      pUrgentCount++;
+      globalActiveAlerts++;
+      globalHighRisk++;
+      updateCountsUI();
+      updatePreviewBarGraphs();
+      showToast('INC-NEW', 'New Perimeter Anomaly Detected', 'Dynamic bar graph updated: +1 Urgent Active Incident.', 'HIGH RISK');
+    }
+
+    function decrementAlertCount() {
+      if (globalActiveAlerts > 0) {
+        globalActiveAlerts--;
+      }
+      if (globalHighRisk > 0 && globalActiveAlerts < 3) {
+        globalHighRisk--;
+      }
+      if (pUrgentCount > 0) {
+        pUrgentCount--;
+        pSolvedCount++;
+      }
+      updateCountsUI();
+      updatePreviewBarGraphs();
+    }
+
+    function updateCountsUI() {
+      document.getElementById('dash-alerts-count').innerText = globalActiveAlerts;
+      document.getElementById('dash-high-count').innerText = globalHighRisk;
+      document.getElementById('nav-alert-badge').innerText = globalActiveAlerts;
+    }
+
+    function toggleAutoLoop() {
+      const btn = document.getElementById('auto-btn');
+      if (autoDemoInterval) {
+        clearInterval(autoDemoInterval);
+        autoDemoInterval = null;
+        btn.innerHTML = '▶ Demo Loop (5s)';
+        btn.className = 'px-3 py-1 rounded-lg font-bold bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-sm transition';
+      } else {
+        const scList = ['breach', 'fall', 'bus'];
+        let idx = 0;
+        injectScenario(scList[idx]);
+        autoDemoInterval = setInterval(() => {
+          idx = (idx + 1) % scList.length;
+          injectScenario(scList[idx]);
+        }, 5000);
+        btn.innerHTML = '⏹ Stop Loop';
+        btn.className = 'px-3 py-1 rounded-lg font-bold bg-slate-800 text-white shadow-sm transition';
+      }
+    }
+
+    function handlePreviewFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const video = document.getElementById('p-video');
+      const sim = document.getElementById('p-cctv-sim');
+      video.src = URL.createObjectURL(file);
+      video.muted = true;
+      video.classList.remove('hidden');
+      sim.classList.add('hidden');
+      video.play().catch(err => console.warn('Muted auto-play note:', err));
+      document.getElementById('p-play-btn').innerHTML = '<span>⏸ Pause Analysis</span>';
+
+      // Attach real-time timeupdate listener from the uploaded video
+      video.ontimeupdate = function() {
+        if (!isNaN(video.duration)) {
+          const current = Math.floor(video.currentTime);
+          updateTimelineView(current, Math.floor(video.duration));
+          evaluateRiskAtSecond(current);
+        }
+      };
+
+      video.onended = function() {
+        document.getElementById('p-play-btn').innerHTML = '<span>▶ Replay Analysis</span>';
+      };
+
+      applyScenarioData('breach');
+    }
+
+    function toggleVideo() {
+      const btn = document.getElementById('p-play-btn');
+      const video = document.getElementById('p-video');
+
+      if (videoAnalysisInterval) {
+        clearInterval(videoAnalysisInterval);
+        videoAnalysisInterval = null;
+        if (!video.classList.contains('hidden')) video.pause();
+        btn.innerHTML = '<span>▶ Resume Analysis</span>';
+      } else {
+        if (!video.classList.contains('hidden')) {
+          video.play().catch(err => console.warn('Play note:', err));
+        }
+        videoAnalysisInterval = setInterval(() => {
+          currentVideoSec = (currentVideoSec + 1) % (maxVideoDuration + 1);
+          updateTimelineView(currentVideoSec, maxVideoDuration);
+          evaluateRiskAtSecond(currentVideoSec);
+        }, 1000);
+        btn.innerHTML = '<span>⏸ Pause Analysis</span>';
+      }
+    }
+
+    function evaluateRiskAtSecond(sec) {
+      if (sec >= 22) {
+        applyScenarioData('breach');
+      } else if (sec >= 14) {
+        // Medium Warning
+        updateLiveRiskTelemetry('MEDIUM RISK', 'bg-amber-500 text-white', '94.8%', 'Medium Risk', 'bg-amber-50 border-amber-200 text-amber-900', 'Token C-017 lingering in Warning Zone buffer.');
+      } else if (sec >= 7) {
+        // Low Risk
+        updateLiveRiskTelemetry('LOW RISK', 'bg-emerald-500 text-white', '96.2%', 'Low Risk', 'bg-emerald-50 border-emerald-200 text-emerald-900', 'Token C-017 verified in buffer perimeter.');
+      } else {
+        // Safe / No Risk
+        updateLiveRiskTelemetry('NO RISK DETECTED', 'bg-emerald-500 text-white', '98.4%', 'No Risk Detected', 'bg-emerald-50 border-emerald-200 text-emerald-900', 'All monitored entities within safe playground boundaries.');
+      }
+    }
+
+    function updateLiveRiskTelemetry(hudText, hudClass, conf, vTitle, vBoxClass, vDesc) {
+      const hBadge = document.getElementById('p-hud-risk-badge');
+      if (hBadge) {
+        hBadge.className = `px-2.5 py-0.5 rounded-md font-bold text-xs shadow-sm ${hudClass}`;
+        hBadge.innerText = hudText;
+      }
+      const cEl = document.getElementById('p-hud-confidence');
+      if (cEl) cEl.innerText = conf;
+
+      const vBox = document.getElementById('p-verdict-box');
+      if (vBox) {
+        vBox.className = `rounded-2xl border p-4 transition-all duration-500 ${vBoxClass}`;
+        document.getElementById('p-verdict-title').innerText = vTitle;
+        document.getElementById('p-verdict-desc').innerText = vDesc;
+      }
+    }
+
+    function resetVideo() {
+      if (videoAnalysisInterval) {
+        clearInterval(videoAnalysisInterval);
+        videoAnalysisInterval = null;
+      }
+      const video = document.getElementById('p-video');
+      if (!video.classList.contains('hidden')) {
+        video.currentTime = 0;
+        video.pause();
+      }
+      currentVideoSec = 0;
+      updateTimelineView(0, maxVideoDuration);
+      document.getElementById('p-play-btn').innerHTML = '<span>▶ Play Analysis</span>';
+      applyScenarioData('normal');
+    }
+
+    // Real-Time Optical Frame Differencing Engine with EMA Smoothing
+    let pPrevFrameData = null;
+    let pPrevCentroid = null;
+    let pSmoothedBox = null;
+    let pLastStateUpdateTime = 0;
+    let pMaxRisk = 'NO RISK DETECTED';
+    let selectedPersonaRole = 'Admin';
+    const pOffscreenCanvas = document.createElement('canvas');
+    pOffscreenCanvas.width = 160;
+    pOffscreenCanvas.height = 120;
+    const pOffCtx = pOffscreenCanvas.getContext('2d', { willReadFrequently: true });
+
+    function getPreviewVideoRenderBounds(containerW, containerH, vidW, vidH) {
+      if (!vidW || !vidH) return { x: 0, y: 0, w: containerW, h: containerH };
+      const videoAspect = vidW / vidH;
+      const containerAspect = containerW / containerH;
+      let renderW, renderH, offsetX, offsetY;
+
+      if (videoAspect > containerAspect) {
+        renderW = containerW;
+        renderH = containerW / videoAspect;
+        offsetX = 0;
+        offsetY = (containerH - renderH) / 2;
+      } else {
+        renderH = containerH;
+        renderW = containerH * videoAspect;
+        offsetX = (containerW - renderW) / 2;
+        offsetY = 0;
+      }
+      return { x: offsetX, y: offsetY, w: renderW, h: renderH };
+    }
+
+    function startMotionDetectionLoop() {
+      const overlay = document.getElementById('p-motion-canvas');
+      const video = document.getElementById('p-video');
+      if (!overlay || !video) return;
+
+      const ctx = overlay.getContext('2d');
+
+      function loop() {
+        if (!video.classList.contains('hidden') && video.readyState >= 2 && !video.paused) {
+          // Jitter Prevention: Only resize canvas buffer if dimensions changed by >3px
+          const targetW = Math.floor(overlay.clientWidth);
+          const targetH = Math.floor(overlay.clientHeight);
+          if (Math.abs(overlay.width - targetW) > 3 || Math.abs(overlay.height - targetH) > 3) {
+            overlay.width = targetW;
+            overlay.height = targetH;
+          }
+          const dispW = overlay.width;
+          const dispH = overlay.height;
+
+          if (dispW > 0 && dispH > 0) {
+            ctx.clearRect(0, 0, dispW, dispH);
+
+            // Compute exact video viewport (handles portrait & landscape videos without shaking)
+            const vidBounds = getPreviewVideoRenderBounds(dispW, dispH, video.videoWidth, video.videoHeight);
+
+            // Draw Geofence boundaries aligned strictly with the video content
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 3]);
+            ctx.strokeRect(vidBounds.x + 8, vidBounds.y + 8, vidBounds.w * 0.5 - 16, vidBounds.h - 16);
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.7)';
+            ctx.font = 'bold 9px JetBrains Mono, monospace';
+            ctx.fillText('● SAFE AREA', vidBounds.x + 14, vidBounds.y + 22);
+
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+            ctx.strokeRect(vidBounds.x + vidBounds.w * 0.72, vidBounds.y + 8, vidBounds.w * 0.26, vidBounds.h - 16);
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.8)';
+            ctx.fillText('🚨 HIGHWAY RESTRICTED', vidBounds.x + vidBounds.w * 0.74, vidBounds.y + 22);
+            ctx.setLineDash([]);
+
+            // Draw current video frame to offscreen canvas
+            pOffCtx.drawImage(video, 0, 0, 160, 120);
+            const currData = pOffCtx.getImageData(0, 0, 160, 120).data;
+
+            let movingCount = 0;
+            let minX = 160, maxX = 0, minY = 120, maxY = 0;
+            let sumX = 0, sumY = 0;
+
+            if (pPrevFrameData) {
+              for (let i = 0; i < currData.length; i += 4) {
+                const diff = Math.abs(currData[i] - pPrevFrameData[i]) +
+                             Math.abs(currData[i + 1] - pPrevFrameData[i + 1]) +
+                             Math.abs(currData[i + 2] - pPrevFrameData[i + 2]);
+                if (diff > 55) {
+                  movingCount++;
+                  const px = (i / 4) % 160;
+                  const py = Math.floor((i / 4) / 160);
+                  if (px < minX) minX = px;
+                  if (px > maxX) maxX = px;
+                  if (py < minY) minY = py;
+                  if (py > maxY) maxY = py;
+                  sumX += px;
+                  sumY += py;
+                }
+              }
+            }
+            pPrevFrameData = new Uint8ClampedArray(currData);
+
+            const energy = Math.min(100, Math.round((movingCount / (160 * 120 * 0.25)) * 100));
+
+            if (movingCount > 15) {
+              const cx = sumX / movingCount;
+              const cy = sumY / movingCount;
+              let speed = 0;
+              let deltaY = 0;
+              if (pPrevCentroid) {
+                const dx = cx - pPrevCentroid.x;
+                const dy = cy - pPrevCentroid.y;
+                deltaY = dy;
+                speed = Math.sqrt(dx * dx + dy * dy);
+              }
+              pPrevCentroid = { x: cx, y: cy };
+
+              // Map coordinates into actual video viewport bounds
+              const rawBoxX = vidBounds.x + (minX / 160) * vidBounds.w;
+              const rawBoxY = vidBounds.y + (minY / 120) * vidBounds.h;
+              const rawBoxW = Math.max(48, ((maxX - minX) / 160) * vidBounds.w);
+              const rawBoxH = Math.max(64, ((maxY - minY) / 120) * vidBounds.h);
+
+              // Exponential Moving Average (EMA) smoothing - eliminates bounding box jitter
+              if (!pSmoothedBox) {
+                pSmoothedBox = { x: rawBoxX, y: rawBoxY, w: rawBoxW, h: rawBoxH };
+              } else {
+                const alpha = 0.24;
+                pSmoothedBox.x += (rawBoxX - pSmoothedBox.x) * alpha;
+                pSmoothedBox.y += (rawBoxY - pSmoothedBox.y) * alpha;
+                pSmoothedBox.w += (rawBoxW - pSmoothedBox.w) * alpha;
+                pSmoothedBox.h += (rawBoxH - pSmoothedBox.h) * alpha;
+              }
+
+              const bx = pSmoothedBox.x;
+              const by = pSmoothedBox.y;
+              const bw = pSmoothedBox.w;
+              const bh = pSmoothedBox.h;
+
+              // Classify Risk based on Motion
+              let boxRisk = 'LOW RISK';
+              let strokeColor = '#10B981';
+              let fillColor = 'rgba(16, 185, 129, 0.12)';
+              let statusText = 'Normal Motion Tracking';
+
+              if (deltaY > 5.5 || cy / 120 > 0.72) {
+                boxRisk = 'CRITICAL RISK';
+                strokeColor = '#EF4444';
+                fillColor = 'rgba(239, 68, 68, 0.25)';
+                statusText = 'SUDDEN COLLAPSE / FALL DETECTED';
+              } else if (cx / 160 > 0.70) {
+                boxRisk = 'HIGH RISK';
+                strokeColor = '#F43F5E';
+                fillColor = 'rgba(244, 63, 94, 0.22)';
+                statusText = 'RESTRICTED HIGHWAY PERIMETER BREACH';
+              } else if (speed > 7.5 || cx / 160 > 0.48) {
+                boxRisk = 'MEDIUM RISK';
+                strokeColor = '#F59E0B';
+                fillColor = 'rgba(245, 158, 11, 0.18)';
+                statusText = 'HIGH VELOCITY / BUFFER APPROACH';
+              }
+
+              // Draw motion bounding box on video
+              ctx.fillStyle = fillColor;
+              ctx.fillRect(bx, by, bw, bh);
+              ctx.strokeStyle = strokeColor;
+              ctx.lineWidth = 2.5;
+              ctx.strokeRect(bx, by, bw, bh);
+
+              // Draw corner brackets
+              const cs = Math.min(14, bw * 0.25);
+              ctx.lineWidth = 3.5;
+              ctx.beginPath();
+              ctx.moveTo(bx, by + cs); ctx.lineTo(bx, by); ctx.lineTo(bx + cs, by);
+              ctx.moveTo(bx + bw - cs, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + cs);
+              ctx.moveTo(bx, by + bh - cs); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + cs, by + bh);
+              ctx.moveTo(bx + bw - cs, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - cs);
+              ctx.stroke();
+
+              // Label
+              ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+              ctx.fillRect(bx, by - 22, Math.max(160, bw), 20);
+              ctx.fillStyle = strokeColor;
+              ctx.font = 'bold 9px JetBrains Mono, monospace';
+              ctx.fillText(`MOTION DETECTED [${boxRisk}]`, bx + 6, by - 8);
+
+              // Throttle DOM text updates to 4Hz (every 250ms) to eliminate layout thrashing
+              const now = Date.now();
+              if (now - pLastStateUpdateTime > 250) {
+                pLastStateUpdateTime = now;
+                const energyEl = document.getElementById('p-hud-energy');
+                if (energyEl) energyEl.innerText = energy + '%';
+                const velEl = document.getElementById('p-hud-vel');
+                if (velEl) velEl.innerText = (speed * 10).toFixed(0) + ' px/f';
+                evaluateRiskAtSecond(Math.floor(video.currentTime || 0));
+              }
+            }
+          }
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    setTimeout(startMotionDetectionLoop, 300);
+    setTimeout(updatePreviewBarGraphs, 100);
+
+    function updateTimelineView(sec, totalDuration) {
+      const dur = totalDuration || maxVideoDuration;
+      const pct = Math.min(100, (sec / dur) * 100);
+      const playhead = document.getElementById('p-playhead');
+      if (playhead) playhead.style.left = `${pct}%`;
+      const mm = '00';
+      const ss = String(sec).padStart(2, '0');
+      const totSS = String(dur).padStart(2, '0');
+      const tc = document.getElementById('p-timecode');
+      if (tc) tc.innerText = `${mm}:${ss} / ${mm}:${totSS} (Frame #${sec * 30})`;
+    }
+
+    function seekPreviewTimeline(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(1, clickX / rect.width));
+      currentVideoSec = Math.floor(pct * maxVideoDuration);
+      updateTimelineView(currentVideoSec, maxVideoDuration);
+
+      const video = document.getElementById('p-video');
+      if (!video.classList.contains('hidden') && !isNaN(video.duration)) {
+        video.currentTime = pct * video.duration;
+      }
+
+      evaluateRiskAtSecond(currentVideoSec);
+    }
+
+    function switchRole(role) {
+      const adminBtn = document.getElementById('role-admin-btn');
+      const secBtn = document.getElementById('role-security-btn');
+      if (role === 'Administrator') {
+        adminBtn.className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-indigo-700 font-bold transition';
+        secBtn.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      } else {
+        secBtn.className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-indigo-700 font-bold transition';
+        adminBtn.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      }
+    }
+
+    function selectLoginPersona(role) {
+      selectedPersonaRole = role;
+      const adminCard = document.getElementById('login-preset-admin');
+      const secCard = document.getElementById('login-preset-sec');
+      const adminCheck = document.getElementById('preset-admin-check');
+      const secCheck = document.getElementById('preset-sec-check');
+      const adminBar = document.getElementById('preset-admin-bar');
+      const secBar = document.getElementById('preset-sec-bar');
+      const emailInput = document.getElementById('preview-login-email');
+      const passInput = document.getElementById('preview-login-pass');
+
+      if (role === 'Admin') {
+        if (emailInput) emailInput.value = 'admin@childguard.ai';
+        if (passInput) passInput.value = 'admin123';
+        if (adminCard) adminCard.className = 'p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-gradient-to-br from-indigo-50 to-violet-50/50 border-indigo-500 text-indigo-900 shadow-sm';
+        if (secCard) secCard.className = 'p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-slate-50/80 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/60';
+        if (adminCheck) adminCheck.classList.remove('hidden');
+        if (secCheck) secCheck.classList.add('hidden');
+        if (adminBar) adminBar.classList.remove('hidden');
+        if (secBar) secBar.classList.add('hidden');
+        switchRole('Administrator');
+      } else {
+        if (emailInput) emailInput.value = 'security@childguard.ai';
+        if (passInput) passInput.value = 'security123';
+        if (secCard) secCard.className = 'p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-gradient-to-br from-indigo-50 to-violet-50/50 border-indigo-500 text-indigo-900 shadow-sm';
+        if (adminCard) adminCard.className = 'p-3.5 rounded-xl border text-left text-xs transition cursor-pointer relative overflow-hidden bg-slate-50/80 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/60';
+        if (secCheck) secCheck.classList.remove('hidden');
+        if (adminCheck) adminCheck.classList.add('hidden');
+        if (secBar) secBar.classList.remove('hidden');
+        if (adminBar) adminBar.classList.add('hidden');
+        switchRole('Campus Security');
+      }
+    }
+
+    function togglePreviewPasswordVisibility() {
+      const pass = document.getElementById('preview-login-pass');
+      if (pass) {
+        pass.type = pass.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    function handlePreviewLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('preview-login-submit-btn');
+      if (btn) {
+        btn.innerHTML = '<span>Verifying credentials...</span>';
+        btn.disabled = true;
+      }
+
+      setTimeout(() => {
+        if (btn) {
+          btn.innerHTML = '<span>Sign In to Safety Console</span><span>→</span>';
+          btn.disabled = false;
+        }
+        sessionStorage.setItem('childguard_preview_auth', 'true');
+        sessionStorage.setItem('childguard_preview_role', selectedPersonaRole);
+        if (selectedPersonaRole === 'Security') {
+          switchRole('Campus Security');
+          switchView('monitoring');
+          showToast('AUTH-002', 'Campus Security Authenticated', 'Active shift monitoring session initiated on live CCTV network.', 'SECURITY ACTIVE');
+        } else {
+          switchRole('Administrator');
+          switchView('dashboard');
+          showToast('AUTH-001', 'System Administrator Authenticated', 'Administrator level configuration and telemetry console unlocked.', 'ADMIN ACTIVE');
+        }
+      }, 400);
+    }
+
+    function handlePreviewLogout() {
+      sessionStorage.removeItem('childguard_preview_auth');
+      sessionStorage.removeItem('childguard_preview_role');
+      switchView('login');
+      showToast('LOGOUT', 'Console Session Ended', 'You have signed out. Please authenticate to view campus telemetry.', 'SIGNED OUT');
+    }
+
+    function checkAuthOnLoad() {
+      const isAuth = sessionStorage.getItem('childguard_preview_auth') === 'true';
+      if (!isAuth) {
+        switchView('login');
+      } else {
+        const savedRole = sessionStorage.getItem('childguard_preview_role') || 'Admin';
+        if (savedRole === 'Security') {
+          switchRole('Campus Security');
+          switchView('monitoring');
+        } else {
+          switchRole('Administrator');
+          switchView('dashboard');
+        }
+      }
+    }
+
+    setTimeout(checkAuthOnLoad, 50);
+  </script>
+</body>
+</html>

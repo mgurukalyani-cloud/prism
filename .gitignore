@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+.vite/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+.venv/
+env/
+.pytest_cache/
+*.db
+*.sqlite3
+
+# AI models & data large media
+ai_models/*.pt
+ai_models/*.onnx
+data/videos/*.mp4
+data/videos/*.avi
+
+# IDE
+.vscode/
+.idea/
+*.swp
