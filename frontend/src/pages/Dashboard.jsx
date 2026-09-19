@@ -186,7 +186,7 @@ export default function Dashboard() {
   };
 
   if (loading && !stats) {
-    return <LoadingSpinner text="Connecting to ChildGuard AI Telemetry Stream..." />;
+    return <LoadingSpinner text="Connecting to SafeGuard AI Telemetry Stream (KLH Aziznagar)..." />;
   }
 
   const riskPieData = [
@@ -214,11 +214,19 @@ export default function Dashboard() {
       {/* Top Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 uppercase">
+              SafeGuard AI Command Hub
+            </span>
+            <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+              KLH Aziznagar Campus, Hyderabad
+            </span>
+          </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Safety Command Center
+            Universal Safety Command Center
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 flex items-center gap-2 font-medium">
-            <span>Authorized Campus Operational Overview</span>
+            <span>KLH Aziznagar Campus Safety Oversight (Children, Staff, Senior Citizens)</span>
             <span className="text-slate-300">•</span>
             <span className="text-blue-700 font-mono font-semibold">AI Decision Support Active</span>
           </p>
@@ -245,12 +253,12 @@ export default function Dashboard() {
       {/* Top 4 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
-          title="Total Children Tracked"
+          title="Total People Monitored"
           value={stats?.total_children || 128}
-          subtitle="Anonymous tokens (C-001..C-041)"
+          subtitle="Tokens: C-200, P-101, SR-301"
           icon={Users}
           color="blue"
-          badge="Campus-Wide"
+          badge="All Age Groups"
         />
 
         <StatCard

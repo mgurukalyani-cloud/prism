@@ -135,16 +135,17 @@ export default function Layout({ userRole = 'Admin', onRoleChange, onLogout }) {
         {/* Enterprise Privacy & Human Supervision Footer */}
         <footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2 text-slate-600">
-            <Info className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <Info className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
             <span>
-              <strong>Privacy by Design:</strong> Anonymous tracking tokens only (<code className="text-blue-700 font-mono font-bold">C-001</code>..<code className="text-blue-700 font-mono font-bold">C-041</code>). No facial recognition or biometrics stored.
+              <strong>Privacy by Design:</strong> Universal anonymous tracking tokens (<code className="text-indigo-700 font-mono font-bold">C-200</code>, <code className="text-indigo-700 font-mono font-bold">P-101</code>, <code className="text-indigo-700 font-mono font-bold">SR-301</code>). Covering Children, Adults & Senior Citizens.
             </span>
           </div>
 
           <p className="font-semibold text-slate-700 text-center sm:text-right">
-            AI-assisted safety monitoring. Human supervision remains essential.
+            SafeGuard AI • KLH Aziznagar Campus, Hyderabad • Human supervision active
           </p>
         </footer>
+
       </div>
     </div>
   );

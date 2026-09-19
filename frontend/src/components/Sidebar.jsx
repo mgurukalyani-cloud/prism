@@ -22,7 +22,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, userRole, onLogou
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/monitoring', label: 'AI Video Monitoring', icon: Video, highlight: true },
-    { to: '/children', label: 'Children Registry', icon: Users },
+    { to: '/children', label: 'People Registry', icon: Users },
     { to: '/events', label: 'Safety Events', icon: Activity },
     { to: '/alerts', label: 'Active Alerts', icon: Bell, badge: activeAlertsCount > 0 ? `${activeAlertsCount}` : undefined },
     { to: '/map', label: 'Campus Map', icon: MapPin },
@@ -47,14 +47,15 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, userRole, onLogou
           {!isCollapsed && (
             <div className="truncate">
               <h1 className="font-black text-base tracking-tight text-slate-900 flex items-center gap-1">
-                ChildGuard <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono text-sm font-black">AI</span>
+                SafeGuard <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono text-sm font-black">AI</span>
               </h1>
               <p className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase truncate">
-                Detect • Assess • Protect
+                Detect • Assess • Protect (All Ages)
               </p>
             </div>
           )}
         </NavLink>
+
 
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

@@ -27,8 +27,8 @@ export default function Header({
 
   // Strictly Administrator and Campus Security (Teacher & Parent removed per user request)
   const roles = [
-    { label: 'Admin', title: 'System Administrator', email: 'admin@childguard.ai' },
-    { label: 'Security', title: 'Campus Security Guard', email: 'security@childguard.ai' },
+    { label: 'Admin', title: 'System Administrator', email: 'admin@safeguard.ai' },
+    { label: 'Security', title: 'Campus Security Guard', email: 'security@safeguard.ai' },
   ];
 
   return (

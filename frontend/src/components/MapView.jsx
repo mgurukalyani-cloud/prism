@@ -5,12 +5,14 @@ import RiskBadge from './RiskBadge';
 import { Shield, AlertTriangle, AlertOctagon, User } from 'lucide-react';
 
 // Custom DivIcon creator for clean, modern light theme markers
-const createChildIcon = (childId, riskLevel = 'LOW') => {
+const createPersonIcon = (id, riskLevel = 'LOW', category = 'CHILD') => {
   const isHigh = riskLevel === 'HIGH' || riskLevel === 'CRITICAL';
   const isMed = riskLevel === 'MEDIUM';
 
   const borderColor = isHigh ? '#EF4444' : isMed ? '#F59E0B' : '#10B981';
   const bg = isHigh ? '#EF4444' : isMed ? '#F59E0B' : '#10B981';
+
+  const categoryPrefix = category === 'SENIOR' ? '👴' : category === 'ADULT' ? '👤' : '🎒';
 
   const html = `
     <div style="
@@ -18,15 +20,15 @@ const createChildIcon = (childId, riskLevel = 'LOW') => {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
     ">
       ${isHigh ? `<div style="
         position: absolute;
         inset: -4px;
         border-radius: 9999px;
-        background: rgba(239, 68, 68, 0.3);
-        animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        background: rgba(239, 68, 68, 0.35);
+        animation: ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
       "></div>` : ''}
       <div style="
         background: ${bg};
@@ -37,51 +39,66 @@ const createChildIcon = (childId, riskLevel = 'LOW') => {
         padding: 3px 6px;
         border-radius: 6px;
         border: 2px solid #FFFFFF;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.25);
         white-space: nowrap;
         transform: translate(-50%, -50%);
+        display: flex;
+        align-items: center;
+        gap: 3px;
       ">
-        ${childId}
+        <span>${categoryPrefix}</span>
+        <span>${id}</span>
       </div>
     </div>
   `;
 
   return L.divIcon({
     html: html,
-    className: 'child-marker-custom',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    className: 'person-marker-custom',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 };
 
 export default function MapView({
   childrenData = [],
   zones = [],
-  center = [37.7749, -122.4194],
+  center = [17.3457, 78.3370], // KLH Aziznagar Campus, Hyderabad, Telangana – 500075
   zoom = 16,
   height = '500px'
 }) {
   return (
     <div className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm relative" style={{ height }}>
-      {/* Legend Overlay (Light Elegant Theme) */}
-      <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur border border-slate-200 rounded-lg p-3 text-xs shadow-md space-y-1.5 pointer-events-auto">
-        <div className="font-bold text-slate-800 border-b border-slate-100 pb-1 flex items-center gap-1.5">
-          <Shield className="w-3.5 h-3.5 text-blue-600" />
-          Campus Geofence Zones
+      {/* Legend Overlay (KLH Aziznagar Campus Info) */}
+      <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur border border-slate-200 rounded-xl p-3.5 text-xs shadow-lg space-y-2 pointer-events-auto max-w-[240px]">
+        <div className="font-black text-slate-900 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-indigo-700">
+            <Shield className="w-4 h-4 text-indigo-600" />
+            <span>KLH Aziznagar Campus</span>
+          </div>
+          <span className="text-[9px] font-mono bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-bold">HYD</span>
         </div>
-        <div className="flex items-center gap-2 text-emerald-700 font-medium">
-          <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-500"></span>
-          Safe Zone (Playground / Class)
-        </div>
-        <div className="flex items-center gap-2 text-amber-700 font-medium">
-          <span className="w-3 h-3 rounded bg-amber-100 border border-amber-500"></span>
-          Warning Zone (Parking / Transit)
-        </div>
-        <div className="flex items-center gap-2 text-rose-700 font-medium">
-          <span className="w-3 h-3 rounded bg-rose-100 border border-rose-500"></span>
-          Restricted Zone (Main Gate)
+        
+        <p className="text-[11px] text-slate-500 leading-tight">
+          Moinabad Road, Near TS Police Academy, Hyderabad, Telangana – 500075
+        </p>
+
+        <div className="pt-1 space-y-1.5 border-t border-slate-100">
+          <div className="flex items-center gap-2 text-emerald-800 font-semibold">
+            <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-500"></span>
+            Safe Zones (Academic & Plaza)
+          </div>
+          <div className="flex items-center gap-2 text-amber-800 font-semibold">
+            <span className="w-3 h-3 rounded bg-amber-100 border border-amber-500"></span>
+            Warning Zones (Parking & Transit)
+          </div>
+          <div className="flex items-center gap-2 text-rose-800 font-semibold">
+            <span className="w-3 h-3 rounded bg-rose-100 border border-rose-500"></span>
+            Restricted Zones (Main Gate)
+          </div>
         </div>
       </div>
+
 
       <MapContainer
         center={center}
@@ -140,21 +157,21 @@ export default function MapView({
           );
         })}
 
-        {/* Anonymous Children Markers */}
+        {/* Monitored People Markers (Children, Adults, Senior Citizens) */}
         {childrenData.map((child) => {
-          const lat = child.lat || 37.7749;
-          const lng = child.lng || -122.4194;
+          const lat = child.lat || 17.3457;
+          const lng = child.lng || 78.3370;
 
           return (
             <Marker
               key={child.id || child.anonymous_id}
               position={[lat, lng]}
-              icon={createChildIcon(child.anonymous_id, child.risk_level)}
+              icon={createPersonIcon(child.anonymous_id, child.risk_level, child.category)}
             >
               <Popup>
-                <div className="p-2 space-y-2 min-w-[170px]">
+                <div className="p-2 space-y-2 min-w-[190px]">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                    <span className="font-mono font-bold text-sm text-blue-700">
+                    <span className="font-mono font-bold text-sm text-indigo-700">
                       {child.anonymous_id}
                     </span>
                     <RiskBadge risk={child.risk_level} size="sm" showLabel={false} />
@@ -162,13 +179,19 @@ export default function MapView({
 
                   <div className="text-xs space-y-1 text-slate-600">
                     <div>
+                      <strong className="text-slate-800">Category:</strong> {child.category === 'SENIOR' ? 'Senior Citizen' : child.category === 'ADULT' ? 'Adult / Staff' : 'Child / Student'}
+                    </div>
+                    <div>
                       <strong className="text-slate-800">Zone:</strong> {child.current_zone}
                     </div>
                     <div>
                       <strong className="text-slate-800">Status:</strong> {child.status}
                     </div>
                     <div>
-                      <strong className="text-slate-800">Last Seen:</strong> {child.last_seen || 'Active'}
+                      <strong className="text-slate-800">Campus:</strong> KLH Aziznagar
+                    </div>
+                    <div>
+                      <strong className="text-slate-800">Last Telemetry:</strong> {child.last_seen || 'Active'}
                     </div>
                   </div>
                 </div>
@@ -180,3 +203,4 @@ export default function MapView({
     </div>
   );
 }
+

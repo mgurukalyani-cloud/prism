@@ -23,6 +23,7 @@ export default function Children() {
   const [searchTerm, setSearchTerm] = useState('');
   const [riskFilter, setRiskFilter] = useState('ALL');
   const [zoneFilter, setZoneFilter] = useState('ALL');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
 
   const loadChildren = async () => {
@@ -51,10 +52,11 @@ export default function Children() {
   };
 
   const filteredChildren = childrenList.filter((c) => {
-    const matchSearch = !searchTerm || c.anonymous_id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchSearch = !searchTerm || c.anonymous_id.toLowerCase().includes(searchTerm.toLowerCase()) || (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchRisk = riskFilter === 'ALL' || c.risk_level === riskFilter;
     const matchZone = zoneFilter === 'ALL' || c.current_zone === zoneFilter;
-    return matchSearch && matchRisk && matchZone;
+    const matchCategory = categoryFilter === 'ALL' || c.category === categoryFilter;
+    return matchSearch && matchRisk && matchZone && matchCategory;
   });
 
   const uniqueZones = Array.from(new Set(childrenList.map((c) => c.current_zone)));
@@ -64,38 +66,57 @@ export default function Children() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 uppercase">
+              Universal Platform
+            </span>
+            <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+              Children • Adults • Senior Citizens
+            </span>
+          </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Users className="w-7 h-7 text-blue-600" />
-            Anonymized Tracking Registry
+            <Users className="w-7 h-7 text-indigo-600" />
+            Universal Monitored People Registry
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Privacy-first anonymous tokens (<code className="text-blue-700 font-mono font-bold">C-001</code>..<code className="text-blue-700 font-mono font-bold">C-041</code>). Zero facial recognition stored.
+            Privacy-first anonymous tokens covering all age groups (<code className="text-indigo-700 font-mono font-bold">C-200</code>, <code className="text-indigo-700 font-mono font-bold">P-101</code>, <code className="text-indigo-700 font-mono font-bold">SR-301</code>). Zero biometric storage.
           </p>
         </div>
 
         <div className="text-xs font-mono bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 shadow-xs">
-          Active Tokens: <strong className="text-blue-700">{filteredChildren.length}</strong> / {childrenList.length}
+          Active Monitored: <strong className="text-indigo-700">{filteredChildren.length}</strong> / {childrenList.length}
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between flex-wrap">
+        <div className="relative flex-1 min-w-[240px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search anonymous token (e.g. C-017)..."
+            placeholder="Search token or name (e.g. C-200, P-101, SR-301)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-sm text-slate-900 placeholder-slate-400 transition shadow-xs"
+            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg text-sm text-slate-900 placeholder-slate-400 transition shadow-xs"
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 focus:border-indigo-500 shadow-xs font-medium cursor-pointer"
+          >
+            <option value="ALL">All Demographics</option>
+            <option value="CHILD">Children / Students (C-)</option>
+            <option value="ADULT">Adults / Campus Staff (P-)</option>
+            <option value="SENIOR">Senior Citizens / Elders (SR-)</option>
+          </select>
+
           <select
             value={riskFilter}
             onChange={(e) => setRiskFilter(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 focus:border-blue-500 shadow-xs font-medium"
+            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 focus:border-indigo-500 shadow-xs font-medium cursor-pointer"
           >
             <option value="ALL">All Risk Bands</option>
             <option value="LOW">LOW Risk</option>
@@ -106,7 +127,7 @@ export default function Children() {
           <select
             value={zoneFilter}
             onChange={(e) => setZoneFilter(e.target.value)}
-            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 focus:border-blue-500 max-w-[180px] truncate shadow-xs font-medium"
+            className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 focus:border-indigo-500 max-w-[180px] truncate shadow-xs font-medium cursor-pointer"
           >
             <option value="ALL">All Zones</option>
             {uniqueZones.map((z) => (
@@ -115,6 +136,7 @@ export default function Children() {
           </select>
         </div>
       </div>
+
 
       {/* Grid of Children Cards */}
       {loading ? (
@@ -137,7 +159,18 @@ export default function Children() {
                       <h4 className="font-mono font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                         {child.anonymous_id}
                       </h4>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold">Active Token</span>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          child.category === 'SENIOR'
+                            ? 'bg-amber-100 text-amber-800'
+                            : child.category === 'ADULT'
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {child.category === 'SENIOR' ? '👴 Senior' : child.category === 'ADULT' ? '👤 Adult' : '🎒 Child'}
+                        </span>
+                        <span className="text-[10px] text-slate-400 uppercase font-semibold">Active</span>
+                      </div>
                     </div>
                   </div>
 
@@ -206,9 +239,20 @@ export default function Children() {
                   <span>Tracking Token: {selectedChild.anonymous_id}</span>
                   <RiskBadge risk={selectedChild.risk_level} size="sm" />
                 </h3>
-                <p className="text-xs text-slate-500 font-mono">
-                  Anonymous session record • Zero facial recognition data stored
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                    selectedChild.category === 'SENIOR'
+                      ? 'bg-amber-100 text-amber-800'
+                      : selectedChild.category === 'ADULT'
+                      ? 'bg-purple-100 text-purple-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {selectedChild.category === 'SENIOR' ? '👴 Senior Citizen / Elder' : selectedChild.category === 'ADULT' ? '👤 Adult / Campus Staff' : '🎒 Child / Student'}
+                  </span>
+                  <span className="text-xs text-slate-500 font-mono">
+                    Anonymous session record • Zero facial recognition data stored
+                  </span>
+                </div>
               </div>
             </div>
 
