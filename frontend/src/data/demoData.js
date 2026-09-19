@@ -256,6 +256,7 @@ export const DEMO_EVENTS = [
 ];
 
 export const DEMO_ALERTS = [
+  // High Risk Alerts (New & Urgent)
   {
     id: 1,
     alert_code: "ALT-2026-0001",
@@ -286,18 +287,113 @@ export const DEMO_ALERTS = [
     event_type: "Child Left Behind",
     zone: "School Bus Zone",
     message: "Bus trip status completed; stationary child detection remains inside vehicle.",
-    status: "ACKNOWLEDGED",
+    status: "NEW",
     created_at: "10:20 AM"
   },
   {
     id: 4,
     alert_code: "ALT-2026-0004",
+    child_id: "C-019",
+    risk_level: "HIGH",
+    event_type: "Restricted Zone Entry",
+    zone: "Construction Perimeter",
+    message: "Child approached scaffold zone barrier near North boundary.",
+    status: "ACKNOWLEDGED",
+    created_at: "10:18 AM"
+  },
+
+  // Medium Risk Alerts (Under Review)
+  {
+    id: 5,
+    alert_code: "ALT-2026-0005",
     child_id: "C-041",
     risk_level: "MEDIUM",
     event_type: "Unusual Activity",
     zone: "Parking Area",
     message: "Loitering detected near vehicle lane for greater than 3 minutes.",
-    status: "NEW",
+    status: "ACKNOWLEDGED",
     created_at: "10:14 AM"
+  },
+  {
+    id: 6,
+    alert_code: "ALT-2026-0006",
+    child_id: "C-008",
+    risk_level: "MEDIUM",
+    event_type: "Loitering Warning",
+    zone: "Cafeteria Exterior",
+    message: "Extended dwell time detected outside scheduled meal interval.",
+    status: "ACKNOWLEDGED",
+    created_at: "10:10 AM"
+  },
+  {
+    id: 7,
+    alert_code: "ALT-2026-0007",
+    child_id: "C-015",
+    risk_level: "MEDIUM",
+    event_type: "Geofence Proximity",
+    zone: "West Perimeter",
+    message: "Child tracking within 2 meters of safety buffer line.",
+    status: "NEW",
+    created_at: "10:05 AM"
+  },
+
+  // Low Risk Alerts (Monitoring / Information)
+  {
+    id: 8,
+    alert_code: "ALT-2026-0008",
+    child_id: "C-005",
+    risk_level: "LOW",
+    event_type: "Zone Loitering Notice",
+    zone: "Courtyard Garden",
+    message: "Child resting near courtyard seating area during recess.",
+    status: "NEW",
+    created_at: "09:55 AM"
+  },
+  {
+    id: 9,
+    alert_code: "ALT-2026-0009",
+    child_id: "C-012",
+    risk_level: "LOW",
+    event_type: "Boundary Proximity Transit",
+    zone: "Library Hall",
+    message: "Normal group transit between library hallway and recreation field.",
+    status: "NEW",
+    created_at: "09:48 AM"
+  },
+  {
+    id: 10,
+    alert_code: "ALT-2026-0010",
+    child_id: "C-003",
+    risk_level: "LOW",
+    event_type: "Recreational Delay",
+    zone: "Main Playground",
+    message: "Delayed return to assembly point after bell ringing.",
+    status: "NEW",
+    created_at: "09:40 AM"
+  },
+
+  // Problems Solved (Resolved Alerts)
+  {
+    id: 11,
+    alert_code: "ALT-2026-0011",
+    child_id: "C-002",
+    risk_level: "HIGH",
+    event_type: "Perimeter Breach",
+    zone: "East Gate",
+    message: "Officer dispatched; child safely escorted back to academic wing.",
+    status: "RESOLVED",
+    created_at: "09:25 AM"
+  },
+  {
+    id: 12,
+    alert_code: "ALT-2026-0012",
+    child_id: "C-014",
+    risk_level: "MEDIUM",
+    event_type: "Unusual Activity",
+    zone: "Equipment Shed",
+    message: "Teacher supervisor verified child was retrieving sports gear.",
+    status: "RESOLVED",
+    created_at: "09:15 AM"
   }
 ];
+

@@ -101,3 +101,39 @@ async def resolve_alert(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Alert not found")
     return alert
 
+@router.post("/reset-distribution")
+def reset_alert_distribution(db: Session = Depends(get_db)):
+    """Reset recent alerts to a realistic distribution of HIGH, MEDIUM, and LOW risks with mixed statuses."""
+    alerts = db.query(Alert).order_by(Alert.id.desc()).limit(50).all()
+    low_types = ["Zone Loitering Notice", "Boundary Proximity Transit", "Recreational Delay"]
+    low_zones = ["Courtyard Garden", "Library Hall", "Cafeteria Exterior"]
+
+    for i, a in enumerate(alerts):
+        if i < 18:
+            a.risk_level = "HIGH"
+            a.status = "NEW"
+            a.resolved_at = None
+            a.acknowledged_at = None
+        elif i < 32:
+            a.risk_level = "MEDIUM"
+            a.status = "ACKNOWLEDGED"
+            a.resolved_at = None
+            a.acknowledged_at = datetime.utcnow()
+            a.acknowledged_by = "Patrol Officer Vikram"
+        elif i < 42:
+            a.risk_level = "LOW"
+            a.status = "NEW"
+            a.resolved_at = None
+            a.acknowledged_at = None
+            a.event_type = low_types[i % len(low_types)]
+            a.zone = low_zones[i % len(low_zones)]
+            a.message = f"Minor boundary delay detected for child {a.child_id} at {a.zone}."
+        else:
+            a.status = "RESOLVED"
+            a.resolved_at = datetime.utcnow()
+            a.acknowledged_by = "System Administrator"
+
+    db.commit()
+    return {"status": "success", "message": "Alert distribution reset to realistic HIGH, MEDIUM, and LOW risks", "count": len(alerts)}
+
+

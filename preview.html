@@ -317,6 +317,13 @@
 
             <div class="flex items-center gap-2">
               <button
+                onclick="resetPreviewDistribution()"
+                class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200 transition cursor-pointer"
+                title="Reset to balanced High, Medium, and Low risk distribution"
+              >
+                <span>🔄 Reset Risks</span>
+              </button>
+              <button
                 onclick="quickResolvePreviewProblem()"
                 class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 title="Click to resolve an incident and see the green bar graph climb live!"
@@ -332,6 +339,7 @@
               </button>
             </div>
           </div>
+
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center pt-2">
             <!-- Vertical Bar Chart visualization with CSS transitions -->
@@ -996,6 +1004,13 @@
 
             <div class="flex items-center gap-2">
               <button
+                onclick="resetPreviewDistribution()"
+                class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200 transition cursor-pointer"
+                title="Reset to balanced High, Medium, and Low risk distribution"
+              >
+                <span>🔄 Reset Risks</span>
+              </button>
+              <button
                 onclick="quickResolvePreviewProblem()"
                 class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 title="Click to resolve problem and watch green bar rise!"
@@ -1010,6 +1025,7 @@
                 <span>+ Issue</span>
               </button>
             </div>
+
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center pt-2">
@@ -1601,7 +1617,19 @@
       sBars.forEach(b => b.style.height = `${Math.max(10, sPct)}%`);
     }
 
+    function resetPreviewDistribution() {
+      pUrgentCount = 4;
+      pReviewCount = 2;
+      pSolvedCount = 9;
+      globalActiveAlerts = 4;
+      globalHighRisk = 2;
+      updateCountsUI();
+      updatePreviewBarGraphs();
+      showToast('SYS-RESET', 'Risk Distribution Restored', 'Alerts reset to realistic HIGH, MEDIUM, and LOW distribution.', 'INFO');
+    }
+
     function quickResolvePreviewProblem() {
+
       if (pUrgentCount > 0) {
         pUrgentCount--;
       } else if (pReviewCount > 0) {

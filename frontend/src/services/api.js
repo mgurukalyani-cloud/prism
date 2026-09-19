@@ -95,6 +95,16 @@ export const api = {
     }
   },
 
+  resetAlertDistribution: async () => {
+    try {
+      const res = await apiClient.post('/alerts/reset-distribution');
+      return res.data;
+    } catch (e) {
+      return { status: 'success', message: 'Reset offline alerts' };
+    }
+  },
+
+
   // Cameras
   getCameras: async () => {
     try {
