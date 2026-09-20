@@ -4,7 +4,7 @@ import { Shield, Lock, Mail, ArrowRight, UserCheck, Eye, EyeOff, CheckCircle2, K
 
 export default function Login({ onLoginSuccess }) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@childguard.ai');
+  const [email, setEmail] = useState('admin@safeguard.ai');
   const [password, setPassword] = useState('admin123');
   const [role, setRole] = useState('Admin');
   const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +14,7 @@ export default function Login({ onLoginSuccess }) {
   const demoPresets = [
     {
       role: 'Admin',
-      email: 'admin@childguard.ai',
+      email: 'admin@safeguard.ai',
       password: 'admin123',
       route: '/dashboard',
       label: 'System Administrator',
@@ -22,7 +22,7 @@ export default function Login({ onLoginSuccess }) {
     },
     {
       role: 'Security',
-      email: 'security@childguard.ai',
+      email: 'security@safeguard.ai',
       password: 'security123',
       route: '/monitoring',
       label: 'Campus Security',
@@ -62,13 +62,13 @@ export default function Login({ onLoginSuccess }) {
             <Shield className="w-8 h-8" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            ChildGuard <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono">AI</span>
+            SafeGuard <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent font-mono">AI</span>
           </h1>
           <p className="text-xs text-indigo-700 font-bold uppercase tracking-wider mt-1 font-mono">
             Detect • Assess • Alert • Protect
           </p>
           <p className="text-xs text-slate-500 mt-1 font-medium">
-            AI-Powered Child Monitoring & Safety Ecosystem • PRISMTECH 2026
+            AI-Powered Universal Safety & Threat Detection System • PRISMTECH 2026
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export default function Login({ onLoginSuccess }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="name@childguard.ai"
+                  placeholder="name@safeguard.ai"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl text-xs sm:text-sm text-slate-900 font-medium transition shadow-xs focus:outline-none"
                 />
               </div>

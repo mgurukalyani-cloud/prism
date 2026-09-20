@@ -66,7 +66,7 @@ export default function AlertCard({ alert, onAcknowledge, onResolve, onViewEvent
             const storedPhone = localStorage.getItem('childguard_guard_phone') || '+919876543210';
             const clean = storedPhone.replace(/[^0-9]/g, '');
             const msg = encodeURIComponent(
-              `🚨 *CHILDGUARD AI — EMERGENCY DISPATCH ALERT* 🚨\n\n` +
+              `🚨 *SAFEGUARD AI — EMERGENCY DISPATCH ALERT* 🚨\n\n` +
               `⚠️ *Incident:* ${alert.event_type || 'Safety Alert'}\n` +
               `👤 *Token:* ${alert.child_id || 'C-017'}\n` +
               `📍 *Zone:* ${alert.zone || 'Campus Zone'}\n` +
