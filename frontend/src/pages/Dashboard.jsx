@@ -55,9 +55,9 @@ export default function Dashboard() {
 
   // Live Bar Graph State for Problem Resolution
   const [resolutionData, setResolutionData] = useState([
-    { status: 'NEW', name: 'Urgent Unresolved', count: 4, fill: '#EF4444' },
+    { status: 'NEW', name: 'Urgent Unresolved', count: 3, fill: '#EF4444' },
     { status: 'ACKNOWLEDGED', name: 'Under Review', count: 2, fill: '#F59E0B' },
-    { status: 'RESOLVED', name: 'Problems Solved', count: 9, fill: '#10B981' },
+    { status: 'RESOLVED', name: 'Problems Solved', count: 28, fill: '#10B981' },
   ]);
   const [lastResolvedInfo, setLastResolvedInfo] = useState(null);
 
@@ -190,8 +190,8 @@ export default function Dashboard() {
   }
 
   const riskPieData = [
-    { name: 'LOW', value: stats?.low_risk_count || 14, color: '#10B981' },
-    { name: 'MEDIUM', value: stats?.medium_risk_count || 5, color: '#F59E0B' },
+    { name: 'LOW', value: stats?.low_risk_count || 32, color: '#10B981' },
+    { name: 'MEDIUM', value: stats?.medium_risk_count || 8, color: '#F59E0B' },
     { name: 'HIGH', value: stats?.high_risk_count || 2, color: '#EF4444' },
   ];
 
@@ -565,7 +565,7 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-              <span>Leading Category: <strong className="text-slate-800">Zone Entry (45)</strong></span>
+              <span>Leading Category: <strong className="text-slate-800">Authorized Zone Transit (42)</strong></span>
               <span className="text-indigo-600 font-semibold">Temporal window: 24h</span>
             </div>
           </div>
@@ -613,11 +613,11 @@ export default function Dashboard() {
                 <div className="space-y-1.5 text-[11px] font-medium shrink-0 ml-2">
                   <div className="flex items-center gap-1.5 text-emerald-700">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>LOW: <strong>{stats?.low_risk_count || 14}</strong></span>
+                    <span>LOW: <strong>{stats?.low_risk_count || 32}</strong></span>
                   </div>
                   <div className="flex items-center gap-1.5 text-amber-700">
                     <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span>MEDIUM: <strong>{stats?.medium_risk_count || 5}</strong></span>
+                    <span>MEDIUM: <strong>{stats?.medium_risk_count || 8}</strong></span>
                   </div>
                   <div className="flex items-center gap-1.5 text-rose-700">
                     <span className="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -628,7 +628,7 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-              <span>Active Tracked: <strong className="text-slate-800">{childrenData.length || 128} children</strong></span>
+              <span>Active Monitored: <strong className="text-slate-800">{childrenData.length || 42} individuals (All Ages)</strong></span>
               <span className="text-emerald-600 font-semibold">Zero Perimeter Spills</span>
             </div>
           </div>

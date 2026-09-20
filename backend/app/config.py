@@ -2,7 +2,7 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "ChildGuard AI"
+    PROJECT_NAME: str = "SafeGuard AI"
     VERSION: str = "1.0.0"
     API_PREFIX: str = "/api"
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./childguard.db")

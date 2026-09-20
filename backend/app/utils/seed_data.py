@@ -11,133 +11,163 @@ from app.models.user import User
 def hash_pw(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
-def seed_database(db: Session):
-    # Check if already seeded
-    if db.query(Child).first():
+def seed_database(db: Session, force: bool = False):
+    if not force and db.query(Child).first():
         return
 
-    print("[Seed] Seeding initial ChildGuard AI database records...")
+    print("[Seed] Seeding SafeGuard AI records for KLH Aziznagar Campus...")
 
-    # 1. Seed Users (Demo Accounts: Admin & Security only)
+    # Clear existing demo data if force reseeding
+    if force:
+        db.query(Alert).delete()
+        db.query(Event).delete()
+        db.query(Child).delete()
+        db.query(Camera).delete()
+        db.query(Zone).delete()
+        db.query(User).delete()
+        db.commit()
+
+    # 1. Seed Users (System Administrator and Campus Security)
     users = [
-        User(email="admin@childguard.ai", role="Admin", full_name="System Administrator", password_hash=hash_pw("admin123")),
-        User(email="security@childguard.ai", role="Security", full_name="Marcus Vance (Campus Security)", password_hash=hash_pw("security123")),
+        User(email="admin@safeguard.ai", role="Admin", full_name="System Administrator", password_hash=hash_pw("admin123")),
+        User(email="security@safeguard.ai", role="Security", full_name="Patrol Officer Vikram (Campus Security)", password_hash=hash_pw("security123")),
     ]
     db.add_all(users)
 
-    # 2. Seed Zones
-    # Demo coordinates centered around a modern campus
-    # Approx base: 37.7749, -122.4194
+    # 2. Seed Campus Geofence Zones (KLH Aziznagar Campus, Hyderabad – 500075)
     zones = [
         Zone(
-            name="Main Playground",
+            name="KLH Academic Block",
             zone_type="Safe Zone",
-            description="Open outdoor play field with rubberized surfaces and perimeter barriers",
+            description="Lecture halls, computer labs, and primary academic corridors",
             color="#10B981",
             base_risk_score=10,
-            coordinates_json='[{"lat": 37.7755, "lng": -122.4205}, {"lat": 37.7755, "lng": -122.4185}, {"lat": 37.7742, "lng": -122.4185}, {"lat": 37.7742, "lng": -122.4205}]'
+            coordinates_json='[{"lat": 17.3475, "lng": 78.3360}, {"lat": 17.3475, "lng": 78.3375}, {"lat": 17.3462, "lng": 78.3375}, {"lat": 17.3462, "lng": 78.3360}]'
         ),
         Zone(
-            name="Academic Block",
+            name="Central Campus Plaza",
             zone_type="Safe Zone",
-            description="Classrooms, laboratories, and internal school corridors",
+            description="Open recreation plaza, cafeteria garden, and sports grounds",
             color="#10B981",
-            base_risk_score=15,
-            coordinates_json='[{"lat": 37.7765, "lng": -122.4215}, {"lat": 37.7765, "lng": -122.4195}, {"lat": 37.7756, "lng": -122.4195}, {"lat": 37.7756, "lng": -122.4215}]'
+            base_risk_score=10,
+            coordinates_json='[{"lat": 17.3462, "lng": 78.3365}, {"lat": 17.3462, "lng": 78.3380}, {"lat": 17.3450, "lng": 78.3380}, {"lat": 17.3450, "lng": 78.3365}]'
         ),
         Zone(
-            name="Parking Area",
+            name="Staff Parking",
             zone_type="Warning Zone",
-            description="Vehicle circulation and staff parking zone; elevated attention needed",
+            description="Vehicle parking bays, circulation driveways, and faculty parking",
             color="#F59E0B",
             base_risk_score=40,
-            coordinates_json='[{"lat": 37.7740, "lng": -122.4220}, {"lat": 37.7740, "lng": -122.4200}, {"lat": 37.7730, "lng": -122.4200}, {"lat": 37.7730, "lng": -122.4220}]'
+            coordinates_json='[{"lat": 17.3454, "lng": 78.3352}, {"lat": 17.3454, "lng": 78.3364}, {"lat": 17.3442, "lng": 78.3364}, {"lat": 17.3442, "lng": 78.3352}]'
         ),
         Zone(
-            name="School Bus Zone",
-            zone_type="Safe Zone",
-            description="Dedicated student boarding and transit staging zone",
+            name="Campus Transit & Bus Terminal",
+            zone_type="Warning Zone",
+            description="University bus terminal and passenger boarding bay",
             color="#3B82F6",
-            base_risk_score=20,
-            coordinates_json='[{"lat": 37.7732, "lng": -122.4190}, {"lat": 37.7732, "lng": -122.4175}, {"lat": 37.7722, "lng": -122.4175}, {"lat": 37.7722, "lng": -122.4190}]'
+            base_risk_score=35,
+            coordinates_json='[{"lat": 17.3450, "lng": 78.3370}, {"lat": 17.3450, "lng": 78.3385}, {"lat": 17.3438, "lng": 78.3385}, {"lat": 17.3438, "lng": 78.3370}]'
         ),
         Zone(
-            name="Main Gate",
+            name="Moinabad Road Main Gate",
             zone_type="Restricted Zone",
-            description="Campus perimeter and primary vehicular gateway directly adjacent to highway",
+            description="Main campus entrance adjacent to arterial Moinabad Highway road",
             color="#EF4444",
             base_risk_score=80,
-            coordinates_json='[{"lat": 37.7768, "lng": -122.4180}, {"lat": 37.7768, "lng": -122.4168}, {"lat": 37.7758, "lng": -122.4168}, {"lat": 37.7758, "lng": -122.4180}]'
+            coordinates_json='[{"lat": 17.3480, "lng": 78.3345}, {"lat": 17.3480, "lng": 78.3358}, {"lat": 17.3468, "lng": 78.3358}, {"lat": 17.3468, "lng": 78.3345}]'
         ),
         Zone(
-            name="Restricted Construction Zone",
+            name="Perimeter Boundary",
             zone_type="Restricted Zone",
-            description="Undergoing facility renovation; hazardous equipment and scaffolding",
+            description="North-East perimeter fencing near Telangana Police Academy line",
             color="#DC2626",
             base_risk_score=90,
-            coordinates_json='[{"lat": 37.7738, "lng": -122.4170}, {"lat": 37.7738, "lng": -122.4155}, {"lat": 37.7728, "lng": -122.4155}, {"lat": 37.7728, "lng": -122.4170}]'
+            coordinates_json='[{"lat": 17.3490, "lng": 78.3375}, {"lat": 17.3490, "lng": 78.3392}, {"lat": 17.3478, "lng": 78.3392}, {"lat": 17.3478, "lng": 78.3375}]'
         )
     ]
     db.add_all(zones)
 
-    # 3. Seed Cameras
+    # 3. Seed Cameras at KLH Aziznagar
     cameras = [
         Camera(
             camera_code="CAM-01",
-            name="Playground North Feed",
-            location="North Field Poles",
-            zone_name="Main Playground",
-            status="ONLINE",
-            detection_count=18,
-            current_risk="LOW"
-        ),
-        Camera(
-            camera_code="CAM-02",
-            name="Academic Block Corridor",
-            location="East Hallway Fl. 1",
-            zone_name="Academic Block",
+            name="Sports Ground & Plaza Feed",
+            location="Central Campus Plaza",
+            zone_name="Central Campus Plaza",
             status="ONLINE",
             detection_count=24,
             current_risk="LOW"
         ),
         Camera(
-            camera_code="CAM-03",
-            name="Main Gate Perimeter",
-            location="West Entrance Arch",
-            zone_name="Main Gate",
+            camera_code="CAM-02",
+            name="KLH Academic Block West",
+            location="KLH Academic Block",
+            zone_name="KLH Academic Block",
             status="ONLINE",
-            detection_count=6,
+            detection_count=32,
+            current_risk="LOW"
+        ),
+        Camera(
+            camera_code="CAM-03",
+            name="Moinabad Road Main Gate",
+            location="Moinabad Road Main Gate",
+            zone_name="Moinabad Road Main Gate",
+            status="ONLINE",
+            detection_count=8,
             current_risk="HIGH"
         ),
         Camera(
             camera_code="CAM-04",
-            name="Bus Bay 2 Camera",
-            location="South Terminal Depot",
-            zone_name="School Bus Zone",
+            name="Bus Terminal Bay #2",
+            location="Campus Transit & Bus Terminal",
+            zone_name="Campus Transit & Bus Terminal",
             status="ONLINE",
-            detection_count=12,
+            detection_count=16,
+            current_risk="MEDIUM"
+        ),
+        Camera(
+            camera_code="CAM-05",
+            name="TSPA Junction Boundary Sensor",
+            location="Perimeter Boundary",
+            zone_name="Perimeter Boundary",
+            status="ONLINE",
+            detection_count=5,
             current_risk="HIGH"
+        ),
+        Camera(
+            camera_code="CAM-06",
+            name="Faculty Parking Surveillance",
+            location="Staff Parking",
+            zone_name="Staff Parking",
+            status="ONLINE",
+            detection_count=14,
+            current_risk="LOW"
         )
     ]
     db.add_all(cameras)
 
-    # 4. Seed Anonymous Children (Fictional tracking IDs only)
-    children_data = [
-        ("C-001", "Main Playground", "Active", "LOW", 12, 37.7748, -122.4195),
-        ("C-002", "Academic Block", "Active", "LOW", 15, 37.7760, -122.4205),
-        ("C-005", "Academic Block", "Active", "LOW", 10, 37.7759, -122.4208),
-        ("C-011", "Main Playground", "Active", "LOW", 20, 37.7750, -122.4190),
-        ("C-017", "Main Gate", "Attention", "HIGH", 85, 37.7763, -122.4175),
-        ("C-021", "Main Playground", "Attention", "HIGH", 92, 37.7746, -122.4192),
-        ("C-034", "School Bus Zone", "Attention", "HIGH", 95, 37.7728, -122.4182),
-        ("C-041", "Parking Area", "Active", "MEDIUM", 45, 37.7735, -122.4210),
-        ("C-052", "Main Playground", "Active", "LOW", 10, 37.7752, -122.4198),
-        ("C-063", "Academic Block", "Active", "LOW", 14, 37.7762, -122.4202),
-        ("C-077", "School Bus Zone", "Active", "LOW", 18, 37.7725, -122.4185),
-        ("C-089", "Main Playground", "Active", "LOW", 10, 37.7749, -122.4189),
+    # 4. Seed Monitored Population (Multi-demographic: Children, Adults, Senior Citizens)
+    people_data = [
+        # Students / Children
+        ("C-200", "Moinabad Road Main Gate", "Attention", "HIGH", 85, 17.3474, 78.3351),
+        ("C-017", "Central Campus Plaza", "Active", "LOW", 12, 17.3458, 78.3370),
+        ("C-021", "Central Campus Plaza", "Attention", "HIGH", 82, 17.3454, 78.3374),
+        ("C-034", "Campus Transit & Bus Terminal", "Active", "LOW", 15, 17.3444, 78.3378),
+        ("C-052", "KLH Academic Block", "Active", "LOW", 10, 17.3470, 78.3362),
+        ("C-089", "Central Campus Plaza", "Active", "LOW", 11, 17.3459, 78.3373),
+        
+        # Adults / Staff
+        ("P-101", "KLH Academic Block", "Active", "LOW", 10, 17.3468, 78.3366),
+        ("P-104", "Staff Parking", "Active", "MEDIUM", 45, 17.3446, 78.3358),
+        ("P-200", "Moinabad Road Main Gate", "Attention", "HIGH", 84, 17.3476, 78.3349),
+
+        # Senior Citizens
+        ("SR-301", "KLH Academic Block", "Active", "LOW", 14, 17.3466, 78.3369),
+        ("SR-305", "Central Campus Plaza", "Active", "MEDIUM", 42, 17.3456, 78.3376),
+        ("SR-310", "Central Campus Plaza", "Attention", "HIGH", 89, 17.3452, 78.3371),
     ]
 
-    for cid, zone, st, risk, sc, lat, lng in children_data:
+    for cid, zone, st, risk, sc, lat, lng in people_data:
         db.add(Child(
             anonymous_id=cid,
             current_zone=zone,
@@ -149,88 +179,110 @@ def seed_database(db: Session):
             last_seen=datetime.utcnow() - timedelta(minutes=1)
         ))
 
-    # 5. Seed Events
+    # 5. Seed Events across age-inclusive categories
     now = datetime.utcnow()
     sample_events = [
         Event(
-            child_id="C-017",
+            child_id="C-200",
             camera_id="CAM-03",
-            event_type="Restricted Zone Entry",
-            zone="Main Gate",
-            confidence=0.95,
+            event_type="Restricted Boundary Entry",
+            zone="Moinabad Road Main Gate",
+            confidence=0.96,
             risk_score=85,
             risk_level="HIGH",
             status="ACTIVE",
-            description="Child C-017 traversed perimeter boundary toward Main Gate road.",
+            description="Student Token C-200 approached highway perimeter geofence.",
             timestamp=now - timedelta(minutes=4)
         ),
         Event(
-            child_id="C-021",
+            child_id="SR-301",
             camera_id="CAM-01",
-            event_type="Fall Detected",
-            zone="Main Playground",
-            confidence=0.93,
-            risk_score=92,
+            event_type="Fall / Gait Anomaly",
+            zone="Central Campus Plaza",
+            confidence=0.92,
+            risk_score=82,
             risk_level="HIGH",
             status="ACTIVE",
-            description="Rapid posture shift to ground horizontal position detected for C-021.",
+            description="Senior Visitor SR-301 gait instability detected; assisted recovery initiated.",
             timestamp=now - timedelta(minutes=8)
         ),
         Event(
             child_id="C-034",
             camera_id="CAM-04",
-            event_type="Child Left Behind",
-            zone="School Bus Zone",
-            confidence=0.98,
-            risk_score=95,
-            risk_level="HIGH",
-            status="ACTIVE",
-            description="Trip completed at South Terminal; child C-034 remains stationary in aisle.",
-            timestamp=now - timedelta(minutes=15)
-        ),
-        Event(
-            child_id="C-041",
-            camera_id="CAM-02",
-            event_type="Unusual Activity",
-            zone="Parking Area",
-            confidence=0.86,
+            event_type="Vehicle Buffer Warning",
+            zone="Campus Transit & Bus Terminal",
+            confidence=0.95,
             risk_score=48,
             risk_level="MEDIUM",
+            status="ACTIVE",
+            description="Student C-034 within active vehicle buffer bay during bus departure.",
+            timestamp=now - timedelta(minutes=14)
+        ),
+        Event(
+            child_id="P-104",
+            camera_id="CAM-06",
+            event_type="Unusual Lingering",
+            zone="Staff Parking",
+            confidence=0.88,
+            risk_score=42,
+            risk_level="MEDIUM",
             status="CONFIRMED",
-            description="Extended loitering trajectory observed in staff vehicle perimeter.",
+            description="Operations Tech P-104 lingering near parking vehicle lane.",
             timestamp=now - timedelta(minutes=25)
         ),
         Event(
-            child_id="C-001",
-            camera_id="CAM-01",
-            event_type="Zone Entry",
-            zone="Main Playground",
+            child_id="P-101",
+            camera_id="CAM-02",
+            event_type="Authorized Zone Transit",
+            zone="KLH Academic Block",
             confidence=0.96,
-            risk_score=15,
+            risk_score=10,
             risk_level="LOW",
             status="RESOLVED",
-            description="Child C-001 entered supervised recreational zone.",
+            description="Staff Member P-101 traversed academic corridor.",
             timestamp=now - timedelta(hours=1)
         ),
     ]
     db.add_all(sample_events)
     db.commit()
 
-    # 6. Seed Sample Alerts from the HIGH/MEDIUM events
-    events_in_db = db.query(Event).filter(Event.risk_level.in_(["HIGH", "MEDIUM"])).all()
-    for ev in events_in_db:
-        alert = Alert(
-            alert_code=f"ALT-{now.strftime('%Y%m%d')}-{ev.id:04d}",
-            event_id=ev.id,
-            child_id=ev.child_id,
-            risk_level=ev.risk_level,
-            event_type=ev.event_type,
-            zone=ev.zone,
-            message=ev.description,
-            status="NEW",
-            created_at=ev.timestamp
-        )
-        db.add(alert)
+    # 6. Seed Calibrated Alerts (3 Urgent Unresolved, 2 Under Review, 28 Problems Solved)
+    # Total 33 alerts -> ~85% Solved Rate
+    alert_templates = [
+        ("C-200", "HIGH", "Restricted Boundary Entry", "Moinabad Road Main Gate", "Student Token C-200 approached highway perimeter geofence.", "NEW", now - timedelta(minutes=4)),
+        ("SR-301", "HIGH", "Fall / Gait Anomaly", "Central Campus Plaza", "Senior Visitor SR-301 gait instability detected; assisted recovery initiated.", "NEW", now - timedelta(minutes=8)),
+        ("P-200", "HIGH", "Restricted Boundary Entry", "Perimeter Boundary", "Visitor Token P-200 approached boundary fence line.", "NEW", now - timedelta(minutes=11)),
+        ("C-034", "MEDIUM", "Vehicle Buffer Warning", "Campus Transit & Bus Terminal", "Student C-034 within active vehicle buffer bay.", "ACKNOWLEDGED", now - timedelta(minutes=14)),
+        ("P-104", "MEDIUM", "Unusual Lingering", "Staff Parking", "Operations Tech P-104 lingering near parking vehicle lane.", "ACKNOWLEDGED", now - timedelta(minutes=25)),
+    ]
+
+    # Add 28 solved alerts
+    for i in range(1, 29):
+        resolved_t = now - timedelta(minutes=30 + i * 15)
+        alert_templates.append((
+            f"C-{(i % 4) + 1:03d}",
+            "LOW" if i % 2 == 0 else "MEDIUM",
+            "Authorized Zone Transit" if i % 2 == 0 else "Vehicle Buffer Warning",
+            "Central Campus Plaza" if i % 2 == 0 else "KLH Academic Block",
+            f"Routine safety check verified and cleared for token C-{(i % 4) + 1:03d}.",
+            "RESOLVED",
+            resolved_t
+        ))
+
+    for idx, (cid, risk, etype, z, msg, status, t) in enumerate(alert_templates, start=1):
+        db.add(Alert(
+            alert_code=f"ALT-{t.strftime('%Y%m%d')}-{idx:04d}",
+            event_id=1,
+            child_id=cid,
+            risk_level=risk,
+            event_type=etype,
+            zone=z,
+            message=msg,
+            status=status,
+            created_at=t,
+            resolved_at=now - timedelta(minutes=5) if status == "RESOLVED" else None,
+            acknowledged_by="Patrol Officer Vikram" if status == "RESOLVED" else None
+        ))
 
     db.commit()
-    print("[Seed] Seeding completed successfully.")
+    print("[Seed] SafeGuard AI database seeded successfully with calibrated metrics!")

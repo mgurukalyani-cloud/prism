@@ -26,44 +26,44 @@ class SimulationService:
         self.step = 0
         self.scenarios = [
             {
-                "event_type": "Zone Entry",
-                "child_id": "C-001",
-                "zone": "Main Playground",
-                "camera_id": "CAM-01",
-                "confidence": 0.94,
-                "description": "Child C-001 entered safe zone (Main Playground)."
-            },
-            {
-                "event_type": "Unusual Activity",
-                "child_id": "C-002",
-                "zone": "Parking Area",
+                "event_type": "Authorized Zone Transit",
+                "child_id": "P-101",
+                "zone": "KLH Academic Block",
                 "camera_id": "CAM-02",
-                "confidence": 0.88,
-                "description": "Unusual lingering trajectory detected near vehicle parking."
+                "confidence": 0.96,
+                "description": "Staff Member P-101 traversed academic corridor."
             },
             {
-                "event_type": "Restricted Zone Entry",
-                "child_id": "C-017",
-                "zone": "Main Gate",
+                "event_type": "Unusual Lingering",
+                "child_id": "P-104",
+                "zone": "Staff Parking",
+                "camera_id": "CAM-06",
+                "confidence": 0.88,
+                "description": "Operations Tech P-104 lingering near parking vehicle lane."
+            },
+            {
+                "event_type": "Restricted Boundary Entry",
+                "child_id": "C-200",
+                "zone": "Moinabad Road Main Gate",
                 "camera_id": "CAM-03",
                 "confidence": 0.95,
-                "description": "Child C-017 crossed perimeter geofence toward Main Gate road."
+                "description": "Student Token C-200 approached highway perimeter geofence."
             },
             {
-                "event_type": "Fall Detected",
-                "child_id": "C-021",
-                "zone": "Main Playground",
+                "event_type": "Fall / Gait Anomaly",
+                "child_id": "SR-301",
+                "zone": "Central Campus Plaza",
                 "camera_id": "CAM-01",
-                "confidence": 0.93,
-                "description": "Sudden posture collapse detected; child C-021 remains recumbent."
+                "confidence": 0.92,
+                "description": "Senior Visitor SR-301 gait instability detected; verified safe."
             },
             {
-                "event_type": "Child Left Behind",
+                "event_type": "Vehicle Buffer Warning",
                 "child_id": "C-034",
-                "zone": "School Bus Zone",
+                "zone": "Campus Transit & Bus Terminal",
                 "camera_id": "CAM-04",
-                "confidence": 0.97,
-                "description": "Bus trip status completed; stationary child detection remains inside vehicle."
+                "confidence": 0.94,
+                "description": "Student C-034 within active vehicle buffer during bus departure."
             }
         ]
 
@@ -102,28 +102,28 @@ class SimulationService:
         """Instantly inject a specific scenario for hackathon demonstration."""
         scenario_map = {
             "restricted_zone": {
-                "event_type": "Restricted Zone Entry",
-                "child_id": child_id or "C-017",
-                "zone": zone or "Main Gate",
+                "event_type": "Restricted Boundary Entry",
+                "child_id": child_id or "C-200",
+                "zone": zone or "Moinabad Road Main Gate",
                 "camera_id": "CAM-03",
                 "confidence": 0.96,
-                "description": f"Child {child_id or 'C-017'} entered restricted zone at {zone or 'Main Gate'}."
+                "description": f"Individual {child_id or 'C-200'} approached perimeter boundary at {zone or 'Main Gate'}."
             },
             "fall_detected": {
-                "event_type": "Fall Detected",
-                "child_id": child_id or "C-021",
-                "zone": zone or "Main Playground",
+                "event_type": "Fall / Gait Anomaly",
+                "child_id": child_id or "SR-301",
+                "zone": zone or "Central Campus Plaza",
                 "camera_id": "CAM-01",
                 "confidence": 0.93,
-                "description": f"Fall posture detected for {child_id or 'C-021'} at {zone or 'Main Playground'}."
+                "description": f"Posture change / gait anomaly detected for {child_id or 'SR-301'} at {zone or 'Central Plaza'}."
             },
             "child_left_behind": {
-                "event_type": "Child Left Behind",
+                "event_type": "Vehicle Buffer Warning",
                 "child_id": child_id or "C-034",
-                "zone": zone or "School Bus Zone",
+                "zone": zone or "Campus Transit & Bus Terminal",
                 "camera_id": "CAM-04",
-                "confidence": 0.98,
-                "description": f"Trip ended but {child_id or 'C-034'} remains detected inside School Bus."
+                "confidence": 0.95,
+                "description": f"Individual {child_id or 'C-034'} detected within active vehicle buffer bay at {zone or 'Bus Terminal'}."
             }
         }
 

@@ -72,3 +72,20 @@
 .leaflet-popup-tip {
   background: #FFFFFF !important;
 }
+
+/* Zone polygon permanent tooltips */
+.zone-tooltip {
+  background: rgba(15, 23, 42, 0.88) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 3px 7px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25) !important;
+  white-space: nowrap !important;
+}
+.zone-tooltip::before {
+  border-top-color: rgba(15, 23, 42, 0.88) !important;
+}
+

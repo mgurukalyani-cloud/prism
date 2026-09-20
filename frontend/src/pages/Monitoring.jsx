@@ -1062,113 +1062,8 @@ export default function Monitoring() {
           </button>
         </div>
 
-        {/* Playback Controls & Segmented Timeline */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" /> Timecode: <strong className="text-slate-800 font-mono">{formatSeconds(currentTime)} / {formatSeconds(duration)}</strong>
-            </span>
-            <span className="font-mono">
-              Frames Analyzed: <strong className="text-indigo-700">{Math.round(currentTime * 30)}</strong> / {Math.round(duration * 30)}
-            </span>
-          </div>
-
-          {/* Truly Dynamic Risk Timeline Bar */}
-          <div
-            className="h-4 w-full bg-slate-200 rounded-full overflow-hidden flex cursor-pointer relative shadow-inner border border-slate-300 select-none"
-            title="Click anywhere on the timeline to scrub timecode and analyze frames"
-            onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-              const newTime = pct * duration;
-              setCurrentTime(newTime);
-              if (videoRef.current) videoRef.current.currentTime = newTime;
-            }}
-          >
-            {videoSource ? (
-              /* Uploaded Live Video: Render evaluated heatmap slices from actual frame inference */
-              analyzedHeatmap.length > 0 ? (
-                <div className="w-full h-full flex">
-                  {Array.from({ length: Math.ceil(duration) }).map((_, secIdx) => {
-                    const sliceWidth = (1 / duration) * 100;
-                    const item = analyzedHeatmap[secIdx];
-                    const isEvaluated = secIdx <= Math.floor(currentTime);
-                    const bg = !isEvaluated || !item
-                      ? 'bg-slate-200'
-                      : item.score > 80
-                      ? 'bg-rose-600'
-                      : item.score > 50
-                      ? 'bg-orange-500'
-                      : item.score > 15
-                      ? 'bg-amber-400'
-                      : 'bg-emerald-500';
-
-                    return (
-                      <div
-                        key={secIdx}
-                        style={{ width: `${sliceWidth}%` }}
-                        className={`h-full ${bg} ${isEvaluated ? '' : 'opacity-40'} border-r border-white/20`}
-                        title={`Time ${formatSeconds(secIdx)}: ${item ? `${item.level} (${item.score}/100)` : 'Pending Analysis'}`}
-                      />
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500 font-mono font-medium">
-                  Video Loaded ({formatSeconds(duration)}) • Press Play or Scrub to analyze frames
-                </div>
-              )
-            ) : (
-              /* Preset Demonstrations: Render active scenario's actual segments */
-              presetScenarios[activeScenarioKey]?.segments.map((seg, sIdx) => {
-                const isPassed = currentTime >= seg.end;
-                const isCurrent = currentTime >= seg.start && currentTime < seg.end;
-                const isFuture = currentTime < seg.start;
-
-                return (
-                  <div
-                    key={sIdx}
-                    style={{ width: `${seg.pct}%` }}
-                    className={`h-full ${seg.bg} border-r border-white/40 transition-all duration-200 ${
-                      isPassed || isCurrent ? 'opacity-100' : 'opacity-35'
-                    }`}
-                    title={seg.label}
-                  />
-                );
-              })
-            )}
-
-            {/* Scrubber pointer handle */}
-            <div
-              style={{ left: `${progressPercent}%` }}
-              className="absolute top-0 bottom-0 w-3 bg-slate-950 border-2 border-white rounded-full shadow-lg pointer-events-none transform -translate-x-1/2 z-10"
-            />
-          </div>
-
-          {/* Timeline Info Breadcrumb (Shows active zone profile & playhead risk) */}
-          <div className="flex items-center justify-between text-[11px] font-mono pt-1 text-slate-500 flex-wrap gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-slate-700">Timeline Profile:</span>
-              <span className="text-slate-600 font-semibold">
-                {videoSource
-                  ? (currentTime === 0
-                      ? 'Awaiting Playback to Evaluate Frames'
-                      : `Live Video: ${Math.round(currentTime * 30)} / ${Math.round(duration * 30)} frames evaluated`)
-                  : (presetScenarios[activeScenarioKey]?.segments.find(s => currentTime >= s.start && currentTime < s.end)?.label
-                      || (currentTime >= duration ? 'Playback Completed • All Clear' : presetScenarios[activeScenarioKey]?.name))}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 font-bold">
-              <span className="text-slate-400">Current Risk:</span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                currentRiskScore > 80 ? 'bg-rose-100 text-rose-700' : currentRiskScore > 50 ? 'bg-orange-100 text-orange-700' : currentRiskScore > 15 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-              }`}>
-                {currentRiskScore}/100 [{currentRisk}]
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
+        {/* Playback Control Actions */}
+        <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <button
                 onClick={togglePlay}
@@ -1210,7 +1105,6 @@ export default function Monitoring() {
               </span>
             </div>
           </div>
-        </div>
 
         {/* DYNAMIC RISK OSCILLATING TIMELINE GRAPH (Shows rise and clean drop back to Safe) */}
         <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800 text-white space-y-3">

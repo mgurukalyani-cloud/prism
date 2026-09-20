@@ -50,12 +50,12 @@ async def dispatch_security_sms(dispatch: DispatchRequest, db: Session = Depends
     dispatch_code = f"DISP-{int(datetime.now().timestamp()) % 100000}"
 
     message_text = (
-        f"🚨 CHILDGUARD AI DISPATCH [{dispatch_code}]\n"
+        f"🚨 SAFEGUARD AI DISPATCH [{dispatch_code}]\n"
         f"Incident: {incident_title}\n"
-        f"Child Token: {child_token} | Zone: {zone_name}\n"
+        f"Subject Token: {child_token} | Zone: {zone_name}\n"
         f"Risk Level: {risk_lvl} | Time: {timestamp_str}\n"
         f"Assigned Guard: {dispatch.officer_name}\n"
-        f"Immediate patrol response mandated. PRISMTECH 2026."
+        f"Immediate patrol response mandated. KLH Aziznagar Campus."
     )
 
     gateway_status = "simulated_success"
@@ -103,37 +103,27 @@ async def resolve_alert(id: int, db: Session = Depends(get_db)):
 
 @router.post("/reset-distribution")
 def reset_alert_distribution(db: Session = Depends(get_db)):
-    """Reset recent alerts to a realistic distribution of HIGH, MEDIUM, and LOW risks with mixed statuses."""
-    alerts = db.query(Alert).order_by(Alert.id.desc()).limit(50).all()
-    low_types = ["Zone Loitering Notice", "Boundary Proximity Transit", "Recreational Delay"]
-    low_zones = ["Courtyard Garden", "Library Hall", "Cafeteria Exterior"]
-
+    """Reset alerts to a calibrated distribution of 3 Urgent, 2 Reviewing, 28 Solved."""
+    alerts = db.query(Alert).order_by(Alert.id.desc()).all()
+    
     for i, a in enumerate(alerts):
-        if i < 18:
+        if i < 3:
             a.risk_level = "HIGH"
             a.status = "NEW"
             a.resolved_at = None
             a.acknowledged_at = None
-        elif i < 32:
+        elif i < 5:
             a.risk_level = "MEDIUM"
             a.status = "ACKNOWLEDGED"
             a.resolved_at = None
             a.acknowledged_at = datetime.utcnow()
             a.acknowledged_by = "Patrol Officer Vikram"
-        elif i < 42:
-            a.risk_level = "LOW"
-            a.status = "NEW"
-            a.resolved_at = None
-            a.acknowledged_at = None
-            a.event_type = low_types[i % len(low_types)]
-            a.zone = low_zones[i % len(low_zones)]
-            a.message = f"Minor boundary delay detected for child {a.child_id} at {a.zone}."
         else:
             a.status = "RESOLVED"
             a.resolved_at = datetime.utcnow()
-            a.acknowledged_by = "System Administrator"
+            a.acknowledged_by = "Command Center Supervisor"
 
     db.commit()
-    return {"status": "success", "message": "Alert distribution reset to realistic HIGH, MEDIUM, and LOW risks", "count": len(alerts)}
+    return {"status": "success", "message": "Alert distribution reset to calibrated 3 Urgent, 2 Reviewing, 28 Solved"}
 
 

@@ -608,37 +608,6 @@
                   </button>
                 </div>
               </div>
-
-              <!-- Interactive Risk Timeline Segment Bar -->
-              <div class="space-y-1.5 bg-slate-50 border border-slate-200 rounded-xl p-3">
-                <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
-                  <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> Multi-Segment Risk-Level Timeline
-                  </span>
-                  <span id="p-timecode" class="font-mono text-slate-700">00:00 / 00:30 (Frame #0)</span>
-                </div>
-
-                <div id="p-timeline-bar" class="relative w-full h-4 bg-slate-200 rounded-full overflow-hidden flex cursor-pointer border border-slate-300 select-none shadow-inner" onclick="seekPreviewTimeline(event)" title="Click anywhere to scrub timecode and analyze frames">
-                  <div id="p-timeline-segments" class="w-full h-full flex">
-                    <div style="width: 26.7%" class="h-full bg-emerald-500 border-r border-white/40" title="00:00 - 00:08 Safe (Score 8/100)"></div>
-                    <div style="width: 20.0%" class="h-full bg-amber-400 border-r border-white/40 opacity-40" title="00:08 - 00:14 Warning (Score 38/100)"></div>
-                    <div style="width: 23.3%" class="h-full bg-rose-500 border-r border-white/40 opacity-40" title="00:14 - 00:21 Breach (Score 78/100)"></div>
-                    <div style="width: 30.0%" class="h-full bg-emerald-500 opacity-40" title="00:21 - 00:30 Restabilized Safe (Score 10/100)"></div>
-                  </div>
-                  <div id="p-playhead" class="absolute top-0 bottom-0 w-3 bg-slate-950 border-2 border-white rounded-full shadow-lg left-[0%] transition-all duration-150 transform -translate-x-1/2"></div>
-                </div>
-
-                <div class="flex items-center justify-between text-[11px] font-mono pt-1 text-slate-500 flex-wrap gap-2">
-                  <div>
-                    <span class="font-bold text-slate-700">Timeline Profile:</span>
-                    <span id="p-timeline-label" class="text-slate-600 font-semibold ml-1">00:00 - 00:08: Normal Walking in Safe Zone (Score: 8/100)</span>
-                  </div>
-                  <div class="flex items-center gap-1.5 font-bold">
-                    <span class="text-slate-400">Current Risk:</span>
-                    <span id="p-timeline-current-score" class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800">8/100 [SAFE]</span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!-- Right Telemetry & Verdict Area -->

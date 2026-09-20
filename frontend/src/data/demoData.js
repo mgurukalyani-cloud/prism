@@ -5,13 +5,13 @@
  */
 
 export const DEMO_STATS = {
-  total_children: 142, // People monitored across age groups
+  total_children: 42, // Monitored individuals across all age groups
   active_cameras: 12,
-  active_alerts: 4,
+  active_alerts: 3,
   high_risk_events: 2,
-  low_risk_count: 18,
-  medium_risk_count: 7,
-  high_risk_count: 3,
+  low_risk_count: 32,
+  medium_risk_count: 8,
+  high_risk_count: 2,
   system_status: "Online",
   ai_status: "YOLOv8 Dynamic Active"
 };
