@@ -16,7 +16,8 @@ import {
   Wifi,
   Battery,
   User,
-  AlertTriangle
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -96,6 +97,12 @@ export default function MobileDispatchSimulator({ isOpen, onClose, activeAlert }
   const [lastDispatched, setLastDispatched] = useState(null);
   const [actionNotice, setActionNotice] = useState(null);
 
+  // Autonomous Instant Dispatch State
+  const [autoDispatchEnabled, setAutoDispatchEnabled] = useState(true);
+  const [autoCountdown, setAutoCountdown] = useState(null);
+  const [hasAutoSentForAlert, setHasAutoSentForAlert] = useState(false);
+  const [popupBlocked, setPopupBlocked] = useState(false);
+
   // Sync selected person ID if an alert is passed in
   useEffect(() => {
     if (activeAlert?.child_id) {
@@ -156,20 +163,67 @@ export default function MobileDispatchSimulator({ isOpen, onClose, activeAlert }
   };
 
   // Direct Real WhatsApp Click-to-Send to Personal Phone
-  const handleOpenRealWhatsApp = () => {
+  const handleOpenRealWhatsApp = (isAuto = false) => {
     const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
     const encoded = encodeURIComponent(generateMessageText());
     const url = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encoded}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    
+    let win = null;
+    try {
+      win = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        setPopupBlocked(true);
+      } else {
+        setPopupBlocked(false);
+      }
+    } catch (e) {
+      setPopupBlocked(true);
+    }
+
     setLastDispatched({
-      channel: 'WhatsApp Web / App',
+      channel: isAuto ? 'Autonomous WhatsApp Gateway' : 'WhatsApp Web / App',
       phone: phoneNumber,
       personId: effectivePersonId,
       time: new Date().toLocaleTimeString(),
-      status: `SENT VIA WHATSAPP FOR ${effectivePersonId}`,
+      status: isAuto ? `AUTONOMOUSLY SENT FOR ${effectivePersonId}` : `SENT VIA WHATSAPP FOR ${effectivePersonId}`,
     });
     if (soundEnabled) playEmergencySiren();
   };
+
+  const executeAutoDispatch = () => {
+    setHasAutoSentForAlert(true);
+    setAutoCountdown(null);
+    handleOpenRealWhatsApp(true);
+    handleDispatchViaBackend();
+  };
+
+  const cancelAutoDispatch = () => {
+    setAutoCountdown(null);
+    setHasAutoSentForAlert(true);
+  };
+
+  // Autonomous Dispatch Countdown Engine
+  useEffect(() => {
+    if (isOpen && autoDispatchEnabled && !hasAutoSentForAlert) {
+      setAutoCountdown(3);
+    } else if (!isOpen) {
+      setAutoCountdown(null);
+      setHasAutoSentForAlert(false);
+      setPopupBlocked(false);
+    }
+  }, [isOpen, activeAlert?.id, selectedPersonId, autoDispatchEnabled]);
+
+  useEffect(() => {
+    let interval = null;
+    if (autoCountdown !== null && autoCountdown > 0) {
+      interval = setInterval(() => {
+        setAutoCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    } else if (autoCountdown === 0 && !hasAutoSentForAlert) {
+      executeAutoDispatch();
+    }
+    return () => clearInterval(interval);
+  }, [autoCountdown, hasAutoSentForAlert]);
 
   // Dispatch via FastAPI backend endpoint
   const handleDispatchViaBackend = async () => {
@@ -261,8 +315,95 @@ export default function MobileDispatchSimulator({ isOpen, onClose, activeAlert }
               </button>
             </div>
 
+            {/* Autonomous Dispatch Controller & Auto-Countdown */}
+            <div className="space-y-2 pt-3">
+              <div className="flex items-center justify-between bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5">
+                <div className="flex items-center gap-2">
+                  <Zap className={`w-4 h-4 ${autoDispatchEnabled ? 'text-emerald-600 fill-emerald-600 animate-bounce' : 'text-slate-400'}`} />
+                  <div>
+                    <span className="text-xs font-black text-slate-800">Autonomous Instant Dispatch:</span>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ml-2 ${autoDispatchEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
+                      {autoDispatchEnabled ? '⚡ ACTIVE (Auto-Sends in 3s)' : 'MANUAL CLICK REQUIRED'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !autoDispatchEnabled;
+                    setAutoDispatchEnabled(next);
+                    if (next) {
+                      setHasAutoSentForAlert(false);
+                      setAutoCountdown(3);
+                    } else {
+                      setAutoCountdown(null);
+                    }
+                  }}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    autoDispatchEnabled
+                      ? 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700'
+                      : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                  }`}
+                >
+                  {autoDispatchEnabled ? 'Auto ON' : 'Turn ON'}
+                </button>
+              </div>
+
+              {/* Countdown Progress Banner */}
+              {autoCountdown !== null && autoCountdown > 0 && (
+                <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 border border-emerald-300 rounded-xl flex items-center justify-between gap-3 animate-pulse shadow-xs">
+                  <div className="flex items-center gap-2 text-xs text-emerald-950 font-bold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>⚡ Automatically dispatching WhatsApp alert to <strong>{phoneNumber}</strong> in <strong className="font-mono text-emerald-700 text-sm underline">{autoCountdown}s</strong>...</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={executeAutoDispatch}
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold cursor-pointer"
+                    >
+                      Send Now ⚡
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelAutoDispatch}
+                      className="px-2 py-1 bg-white border border-slate-200 text-slate-700 rounded-lg text-[11px] font-bold cursor-pointer"
+                    >
+                      Pause
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Sent Confirmation Banner */}
+              {hasAutoSentForAlert && (
+                <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between gap-2 text-xs text-emerald-900 font-bold animate-fade-in">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>✓ Alert for <strong>{effectivePersonId}</strong> automatically dispatched via WhatsApp!</span>
+                  </span>
+                  <span className="text-[10px] font-mono bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full">AUTO-TRANSMITTED</span>
+                </div>
+              )}
+
+              {/* Popup Blocked Warning & One-Click Bypass */}
+              {popupBlocked && (
+                <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-center justify-between gap-2 animate-bounce">
+                  <span>⚠️ Browser popup window was blocked. Open WhatsApp directly:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenRealWhatsApp(false)}
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs cursor-pointer flex items-center gap-1"
+                  >
+                    <span>Open WhatsApp</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Dynamic Person Selection Controls */}
-            <div className="space-y-3.5 pt-4">
+            <div className="space-y-3.5 pt-3">
               <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
@@ -384,11 +525,26 @@ export default function MobileDispatchSimulator({ isOpen, onClose, activeAlert }
               <div className="space-y-2 pt-1">
                 <button
                   type="button"
-                  onClick={handleOpenRealWhatsApp}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    cancelAutoDispatch();
+                    handleOpenRealWhatsApp(false);
+                  }}
+                  className={`w-full py-2.5 rounded-xl text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer ${
+                    autoCountdown !== null
+                      ? 'bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-500 hover:to-orange-500 animate-pulse shadow-amber-600/25'
+                      : hasAutoSentForAlert
+                      ? 'bg-gradient-to-r from-teal-600 to-emerald-700 hover:from-teal-500 hover:to-emerald-600 shadow-teal-600/25'
+                      : 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/25'
+                  }`}
                 >
                   <Send className="w-4 h-4" />
-                  <span>📲 Send Real WhatsApp Alert for {effectivePersonId} ({phoneNumber})</span>
+                  <span>
+                    {autoCountdown !== null
+                      ? `⚡ Auto-Sending in ${autoCountdown}s... (Click to Send Now)`
+                      : hasAutoSentForAlert
+                      ? `✓ Sent via WhatsApp for ${effectivePersonId} (Click to Re-send)`
+                      : `📲 Send Real WhatsApp Alert for ${effectivePersonId} (${phoneNumber})`}
+                  </span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                 </button>
 
@@ -512,7 +668,18 @@ export default function MobileDispatchSimulator({ isOpen, onClose, activeAlert }
                         {channel === 'WHATSAPP' ? 'SafeGuard WhatsApp' : 'Emergency SMS'}
                       </span>
                     </div>
-                    <span className="text-slate-400 font-mono text-[9px]">Just now</span>
+                    {hasAutoSentForAlert ? (
+                      <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        Auto-Sent
+                      </span>
+                    ) : autoCountdown !== null ? (
+                      <span className="text-[9px] font-mono text-amber-400 font-bold bg-amber-500/20 px-1.5 py-0.5 rounded animate-pulse">
+                        Auto in {autoCountdown}s
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 font-mono text-[9px]">Just now</span>
+                    )}
                   </div>
 
                   {/* Title & Badge */}
