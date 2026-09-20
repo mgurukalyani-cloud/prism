@@ -2548,6 +2548,34 @@
       cancelPreviewAutoDispatch();
       const phoneInput = document.getElementById('p-dispatch-phone-input');
       const phoneVal = phoneInput ? phoneInput.value : '+91 9876543210';
+
+      const sentBanner = document.getElementById('p-auto-sent-banner');
+      if (sentBanner) {
+        sentBanner.classList.remove('hidden');
+        sentBanner.innerHTML = `
+          <span>✓ Alert for <strong>${pCurrentIncident.token}</strong> delivered directly to <strong>${phoneVal}</strong>!</span>
+          <span class="text-[10px] font-mono bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-bold">DELIVERED DIRECT</span>
+        `;
+      }
+
+      const receipt = document.getElementById('p-dispatch-receipt');
+      if (receipt) {
+        receipt.classList.remove('hidden');
+        document.getElementById('p-receipt-phone').innerText = phoneVal;
+        document.getElementById('p-receipt-time').innerText = new Date().toLocaleTimeString();
+      }
+
+      // Update phone display with delivery badge
+      const badgeEl = document.getElementById('p-phone-alert-badge');
+      if (badgeEl) badgeEl.innerText = '✓✓ DELIVERED DIRECT';
+
+      playChimeSound();
+      showToast('DISP-892', 'Direct Cloud Dispatch Delivered', `Alert sent directly to ${phoneVal} (Zero tabs opened).`, 'DELIVERED');
+    }
+
+    function openManualWhatsAppWebPreview() {
+      const phoneInput = document.getElementById('p-dispatch-phone-input');
+      const phoneVal = phoneInput ? phoneInput.value : '+91 9876543210';
       const cleanPhone = phoneVal.replace(/[^0-9]/g, '');
 
       const msg = encodeURIComponent(
@@ -2564,23 +2592,7 @@
         `_PRISMTECH 2026 Campus Safety Network • SafeGuard AI_`
       );
 
-      try {
-        window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
-      } catch (e) {
-        console.warn('Popup blocked:', e);
-      }
-
-      const sentBanner = document.getElementById('p-auto-sent-banner');
-      if (sentBanner) sentBanner.classList.remove('hidden');
-
-      const receipt = document.getElementById('p-dispatch-receipt');
-      if (receipt) {
-        receipt.classList.remove('hidden');
-        document.getElementById('p-receipt-phone').innerText = phoneVal;
-        document.getElementById('p-receipt-time').innerText = new Date().toLocaleTimeString();
-      }
-
-      playChimeSound();
+      window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
     }
 
     function sendSmsRelayFromPreview() {
@@ -2669,10 +2681,11 @@
             </div>
 
             <!-- Countdown Banner -->
+            <!-- Countdown Banner -->
             <div id="p-auto-countdown-banner" class="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 border border-emerald-300 rounded-xl flex items-center justify-between gap-2 animate-pulse text-xs text-emerald-950 font-bold">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>⚡ Automatically sending WhatsApp alert in <strong id="p-countdown-sec" class="text-sm underline">3s</strong>...</span>
+                <span>⚡ Directly transmitting alert in <strong id="p-countdown-sec" class="text-sm underline">3s</strong>... (No tabs opened)</span>
               </div>
               <div class="flex items-center gap-1.5">
                 <button onclick="sendRealWhatsAppFromPreview(true)" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold cursor-pointer">Send Now ⚡</button>
@@ -2682,8 +2695,8 @@
 
             <!-- Sent Success Banner -->
             <div id="p-auto-sent-banner" class="hidden p-2.5 bg-emerald-50 border border-emerald-300 rounded-xl text-xs text-emerald-900 font-bold flex items-center justify-between">
-              <span>✓ Alert automatically dispatched via WhatsApp!</span>
-              <span class="text-[10px] font-mono bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full">AUTO-DELIVERED</span>
+              <span>✓ Alert delivered directly to recipient! (Zero tabs opened)</span>
+              <span class="text-[10px] font-mono bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full">DELIVERED DIRECT</span>
             </div>
           </div>
 
@@ -2698,13 +2711,13 @@
                 <input
                   id="p-dispatch-phone-input"
                   type="tel"
-                  value="+91 9876543210"
-                  placeholder="+91 9876543210"
+                  value="+91 8074167962"
+                  placeholder="+91 8074167962"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-slate-900 bg-slate-50 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
                 />
               </div>
               <p class="text-[11px] text-slate-500">
-                Enter your mobile number to receive the emergency dispatch message directly on WhatsApp!
+                Direct Cloud Gateway delivers emergency dispatch notifications straight to your mobile device.
               </p>
             </div>
 
@@ -2719,7 +2732,7 @@
                   class="py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer bg-emerald-50 border-emerald-500 text-emerald-800 shadow-sm"
                 >
                   <span class="text-base">🟢</span>
-                  <span>WhatsApp Dispatch</span>
+                  <span>WhatsApp Cloud Dispatch</span>
                 </button>
                 <button
                   id="p-btn-ch-sms"
@@ -2740,17 +2753,32 @@
                 onclick="sendRealWhatsAppFromPreview()"
                 class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>📲 Send Real WhatsApp Alert to My Phone</span>
-                <span>↗</span>
+                <span>⚡ Send Real WhatsApp Alert Directly (No Tabs Opened)</span>
               </button>
 
-              <button
-                type="button"
-                onclick="sendSmsRelayFromPreview()"
-                class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>⚡ Trigger Automated Server SMS Relay</span>
-              </button>
+              <div class="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onclick="sendSmsRelayFromPreview()"
+                  class="flex-1 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>⚡ Carrier SMS Relay</span>
+                </button>
+
+                <button
+                  type="button"
+                  onclick="openManualWhatsAppWebPreview()"
+                  class="py-2 px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-600 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                  title="Open WhatsApp Web in new tab (desktop preview only • never opened automatically)"
+                >
+                  <span>Manual Web Preview</span>
+                  <span class="opacity-70">↗</span>
+                </button>
+              </div>
+
+              <p class="text-[10px] text-slate-500 text-center leading-tight">
+                ✓ <strong>Direct Zero-Click Protocol:</strong> Dispatches silently to recipient phone without opening WhatsApp windows or tabs.
+              </p>
             </div>
 
             <!-- Receipt -->

@@ -134,11 +134,13 @@ class SimulationTriggerRequest(BaseModel):
 class DispatchRequest(BaseModel):
     phone_number: str
     alert_id: Optional[Any] = None
-    channel: str = "WHATSAPP" # "SMS" or "WHATSAPP"
+    channel: str = "DIRECT_WHATSAPP" # "SMS", "WHATSAPP", or "DIRECT_WHATSAPP"
     officer_name: Optional[str] = "Patrol Officer Vikram"
     incident_type: Optional[str] = None
     child_token: Optional[str] = None
     zone: Optional[str] = None
     risk_level: Optional[str] = None
+    callmebot_api_key: Optional[str] = None
+    direct_cloud_mode: Optional[bool] = True
 
 

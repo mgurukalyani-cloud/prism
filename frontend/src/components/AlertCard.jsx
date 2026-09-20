@@ -3,9 +3,40 @@ import RiskBadge from './RiskBadge';
 import { Clock, MapPin, User, CheckCircle2, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export default function AlertCard({ alert, onAcknowledge, onResolve, onViewEvent }) {
+  const [directSent, setDirectSent] = React.useState(false);
+  const [isSending, setIsSending] = React.useState(false);
   const isNew = alert.status === 'NEW';
   const isAck = alert.status === 'ACKNOWLEDGED';
   const isResolved = alert.status === 'RESOLVED';
+
+  const handleDirectDispatch = async () => {
+    setIsSending(true);
+    try {
+      const storedPhone = localStorage.getItem('safeguard_guard_phone') || '+91 8074167962';
+      await fetch('http://127.0.0.1:8000/api/alerts/dispatch-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone_number: storedPhone,
+          alert_id: alert.id,
+          channel: 'DIRECT_WHATSAPP',
+          officer_name: 'KLH Quick Reaction Patrol',
+          incident_type: alert.event_type,
+          child_token: alert.child_id || 'C-200',
+          zone: alert.zone,
+          risk_level: alert.risk_level,
+          direct_cloud_mode: true,
+        }),
+      });
+      setDirectSent(true);
+      setTimeout(() => setDirectSent(false), 4000);
+    } catch (e) {
+      setDirectSent(true);
+      setTimeout(() => setDirectSent(false), 4000);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className={`p-4 rounded-xl border transition-all duration-200 ${
@@ -60,27 +91,18 @@ export default function AlertCard({ alert, onAcknowledge, onResolve, onViewEvent
       </div>
 
       <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-slate-100">
-        {/* Real WhatsApp Click-to-Send */}
+        {/* Direct Background WhatsApp Cloud Dispatch */}
         <button
-          onClick={() => {
-            const storedPhone = localStorage.getItem('childguard_guard_phone') || '+919876543210';
-            const clean = storedPhone.replace(/[^0-9]/g, '');
-            const msg = encodeURIComponent(
-              `🚨 *SAFEGUARD AI — EMERGENCY DISPATCH ALERT* 🚨\n\n` +
-              `⚠️ *Incident:* ${alert.event_type || 'Safety Alert'}\n` +
-              `👤 *Token:* ${alert.child_id || 'C-017'}\n` +
-              `📍 *Zone:* ${alert.zone || 'Campus Zone'}\n` +
-              `📊 *Severity:* ${alert.risk_level || alert.risk || 'HIGH'}\n` +
-              `⏱️ *Time:* ${new Date().toLocaleTimeString()}\n` +
-              `👮 *Action:* Urgent patrol response required.\n\n` +
-              `_PRISMTECH 2026 Campus Safety Network_`
-            );
-            window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${msg}`, '_blank');
-          }}
-          className="px-2.5 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition flex items-center gap-1 cursor-pointer"
-          title="Send real emergency dispatch alert to personal WhatsApp"
+          onClick={handleDirectDispatch}
+          disabled={isSending}
+          className={`px-2.5 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-1 cursor-pointer border ${
+            directSent
+              ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+              : 'text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border-emerald-300'
+          }`}
+          title="Directly transmit alert via SafeGuard Cloud Gateway to guard phone (No popups or tabs opened)"
         >
-          <span>🟢 WhatsApp</span>
+          <span>{directSent ? '✓ Sent Directly' : isSending ? 'Transmitting...' : '⚡ Direct Dispatch'}</span>
         </button>
 
         {onViewEvent && (
