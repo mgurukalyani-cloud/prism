@@ -176,6 +176,12 @@
         <span class="flex-1">Campus Geofence Map</span>
       </button>
 
+      <button onclick="switchView('safewalk')" id="nav-safewalk" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <span class="text-sm">🚶‍♂️</span>
+        <span class="flex-1">AI SafeWalk & Drone</span>
+        <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-black shadow-xs">NEW</span>
+      </button>
+
       <button onclick="switchView('alerts')" id="nav-alerts" class="nav-tab w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-left text-slate-600 hover:text-slate-900 hover:bg-slate-100">
         <span class="text-sm">🚨</span>
         <span class="flex-1">Safety Alerts</span>
@@ -861,6 +867,163 @@
       </div>
 
       <!-- ========================================== -->
+      <!-- VIEW: AI SAFEWALK & DRONE SUITE -->
+      <!-- ========================================== -->
+      <div id="view-safewalk" class="space-y-6 hidden">
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 text-white border border-indigo-500/20 shadow-xl relative overflow-hidden">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+            <div>
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="px-3 py-1 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  Night Escort Protocol Active
+                </span>
+                <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-400/40 text-indigo-200 rounded-full text-[11px] font-mono font-semibold">
+                  📍 KLH Aziznagar Campus
+                </span>
+              </div>
+              <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                <span>🚶‍♂️ AI SafeWalk™ & Autonomous Drone Interceptor</span>
+              </h2>
+              <p class="text-xs text-slate-300 max-w-2xl mt-1 font-medium">
+                Real-time night escort companion. Calculates 100% illuminated routes, dynamically orchestrates CCTV handovers, and dispatches rapid-response security drones upon threat detection.
+              </p>
+            </div>
+            <div class="flex items-center gap-3 bg-white/5 backdrop-blur-md p-3 rounded-2xl border border-white/10">
+              <div class="text-center px-3 border-r border-white/10">
+                <div class="text-xl font-mono font-black text-emerald-400">99.4%</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400">Safety Index</div>
+              </div>
+              <div class="text-center px-3 border-r border-white/10">
+                <div class="text-xl font-mono font-black text-indigo-300">100%</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400">CCTV Overlap</div>
+              </div>
+              <div class="text-center px-3">
+                <div class="text-xl font-mono font-black text-cyan-300">0</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400">Blindspots</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-panel rounded-2xl p-5 space-y-3">
+              <div class="text-xs font-bold uppercase text-slate-500">Monitored Subject</div>
+              <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-200 flex items-center gap-3">
+                <span class="text-2xl">👤</span>
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Priya Sharma (P-101)</div>
+                  <div class="text-[11px] text-slate-500">Student • Library to Bus Bay</div>
+                  <div class="text-[10px] text-emerald-600 font-mono font-bold mt-0.5">● Vitals Normal (74 BPM)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-5 space-y-3">
+              <div class="text-xs font-bold uppercase text-slate-500">Active Escort Corridor</div>
+              <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs">
+                <div class="font-bold text-emerald-900">Academic Block ➔ Campus Bus Terminal</div>
+                <div class="text-[11px] text-emerald-700 mt-1">420m • 5.2 mins • 3 Optical CCTV Relays</div>
+                <div class="mt-2 text-[10px] text-amber-800 bg-amber-100/60 p-2 rounded-lg border border-amber-200">
+                  ⚡ <strong>AI Routing:</strong> Bypassed dark western perimeter fence & drainage corridor.
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-5 space-y-3">
+              <div class="text-xs font-bold uppercase text-slate-500">Escort Simulation</div>
+              <div class="flex items-center gap-2">
+                <button onclick="startSafeWalkSimulation()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+                  ▶ Start AI Escort
+                </button>
+                <button onclick="resetSafeWalkSimulation()" class="p-2.5 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-100 cursor-pointer">
+                  ↺
+                </button>
+              </div>
+              <button onclick="triggerSafeWalkThreat()" class="w-full py-2.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl text-xs font-bold shadow-md transition cursor-pointer">
+                🚨 Simulate Threat / SOS Intercept
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 space-y-4">
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-200 text-xs font-bold text-slate-800">
+                <span>📍 KLH Aziznagar SafeWalk Vector Map</span>
+                <span id="p-safewalk-cam-badge" class="px-2.5 py-1 bg-indigo-100 text-indigo-900 rounded-lg font-mono">
+                  📹 CAM-02 (Academic West Gate)
+                </span>
+              </div>
+              <div class="relative aspect-[16/9] bg-slate-900 rounded-xl mt-3 overflow-hidden border border-slate-800 p-2">
+                <svg class="w-full h-full" viewBox="0 0 600 340">
+                  <!-- Avoided Hazard Line -->
+                  <path d="M 60,60 L 60,280 L 500,280" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6, 8" opacity="0.6" />
+                  <text x="70" y="160" fill="#F87171" font-size="10" font-family="sans-serif">🚫 Avoided Unlit Hazard Route</text>
+
+                  <!-- Safe Route Line -->
+                  <path d="M 60,60 L 220,120 L 360,200 L 500,280" fill="none" stroke="#10B981" stroke-width="6" stroke-linecap="round" />
+                  <path d="M 60,60 L 220,120 L 360,200 L 500,280" fill="none" stroke="#6EE7B7" stroke-width="2" stroke-dasharray="4, 6" />
+
+                  <!-- Camera Zones -->
+                  <circle cx="80" cy="80" r="45" fill="rgba(79, 70, 229, 0.15)" stroke="#6366F1" stroke-dasharray="3, 3" />
+                  <circle cx="240" cy="140" r="50" fill="rgba(79, 70, 229, 0.15)" stroke="#6366F1" stroke-dasharray="3, 3" />
+                  <circle cx="480" cy="270" r="45" fill="rgba(79, 70, 229, 0.15)" stroke="#6366F1" stroke-dasharray="3, 3" />
+
+                  <text x="80" y="50" fill="#A5B4FC" font-size="10" font-family="monospace">CAM-02</text>
+                  <text x="240" y="100" fill="#A5B4FC" font-size="10" font-family="monospace">CAM-01</text>
+                  <text x="480" y="240" fill="#A5B4FC" font-size="10" font-family="monospace">CAM-04</text>
+
+                  <!-- Origin & Dest -->
+                  <circle cx="60" cy="60" r="12" fill="#10B981" stroke="#FFF" stroke-width="2" />
+                  <text x="60" y="64" fill="#FFF" font-size="10" font-family="sans-serif" font-weight="bold" text-anchor="middle">A</text>
+
+                  <circle cx="500" cy="280" r="12" fill="#4F46E5" stroke="#FFF" stroke-width="2" />
+                  <text x="500" y="284" fill="#FFF" font-size="10" font-family="sans-serif" font-weight="bold" text-anchor="middle">B</text>
+
+                  <!-- Subject Avatar -->
+                  <g id="p-safewalk-avatar" transform="translate(60, 60)">
+                    <circle cx="0" cy="0" r="16" fill="#10B981" stroke="#FFF" stroke-width="2.5" />
+                    <text x="0" y="4" fill="#FFF" font-size="10" text-anchor="middle">👤</text>
+                  </g>
+
+                  <!-- Drone Interceptor -->
+                  <g id="p-safewalk-drone" transform="translate(300, 30)" class="hidden">
+                    <circle cx="0" cy="0" r="28" fill="rgba(239, 68, 68, 0.3)" stroke="#EF4444" stroke-width="2" class="animate-pulse" />
+                    <circle cx="0" cy="0" r="14" fill="#0F172A" stroke="#EF4444" stroke-width="2" />
+                    <text x="0" y="4" fill="#FFF" font-size="9" text-anchor="middle">🚁</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div id="p-safewalk-hud" class="bg-slate-950 rounded-2xl p-5 border border-slate-800 text-white space-y-3">
+              <div class="flex items-center justify-between text-xs font-mono border-b border-slate-800 pb-2">
+                <span id="p-safewalk-hud-title" class="text-indigo-400 font-bold flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  LIVE OPTICAL CCTV RELAY FEED [CAM-02]
+                </span>
+                <span class="text-slate-400">30 FPS • 14ms • AI INFERENCE ACTIVE</span>
+              </div>
+              <div id="p-safewalk-hud-box" class="h-32 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center p-4 text-center">
+                <div class="p-3 border border-emerald-500/60 rounded-xl bg-emerald-500/5">
+                  <div class="text-xl">👤</div>
+                  <div class="font-mono text-xs text-emerald-300 font-bold">AI DETECT: Priya Sharma [P-101]</div>
+                  <div class="text-[10px] text-slate-400 font-mono">CONFIDENCE: 98.6% • GAIT: STABLE (1.2 m/s)</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-2 text-xs">
+                <button onclick="openMobileDispatchModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+                  📱 Open WhatsApp Guard Dispatch
+                </button>
+                <span class="text-slate-400 text-[11px] font-mono">KLH Aziznagar Security Sector 2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
       <!-- VIEW 6: SAFETY ALERTS & INCIDENTS -->
       <!-- ========================================== -->
       <div id="view-alerts" class="space-y-6 hidden">
@@ -1443,7 +1606,7 @@
     };
 
     function switchView(viewName) {
-      const views = ['dashboard', 'monitoring', 'cameras', 'children', 'map', 'alerts', 'reports', 'admin', 'login'];
+      const views = ['dashboard', 'monitoring', 'cameras', 'children', 'map', 'safewalk', 'alerts', 'reports', 'admin', 'login'];
       views.forEach(v => {
         const el = document.getElementById('view-' + v);
         const btn = document.getElementById('nav-' + v);
@@ -1474,6 +1637,78 @@
           scenarioBar.classList.remove('hidden');
         }
       }
+    }
+
+    let pSafeWalkTimer = null;
+    let pSafeWalkPct = 0;
+
+    function startSafeWalkSimulation() {
+      if (pSafeWalkTimer) clearInterval(pSafeWalkTimer);
+      pSafeWalkTimer = setInterval(() => {
+        pSafeWalkPct = (pSafeWalkPct + 2) % 100;
+        updateSafeWalkAvatar(pSafeWalkPct);
+      }, 100);
+    }
+
+    function updateSafeWalkAvatar(pct) {
+      const avatar = document.getElementById('p-safewalk-avatar');
+      const badge = document.getElementById('p-safewalk-cam-badge');
+      const title = document.getElementById('p-safewalk-hud-title');
+      if (!avatar) return;
+      let x, y, cam;
+      if (pct < 33) {
+        const f = pct / 33;
+        x = 60 + (220 - 60) * f;
+        y = 60 + (120 - 60) * f;
+        cam = 'CAM-02 (Academic West Gate)';
+      } else if (pct < 66) {
+        const f = (pct - 33) / 33;
+        x = 220 + (360 - 220) * f;
+        y = 120 + (200 - 120) * f;
+        cam = 'CAM-01 (Sports Ground & Plaza)';
+      } else {
+        const f = (pct - 66) / 34;
+        x = 360 + (500 - 360) * f;
+        y = 200 + (280 - 200) * f;
+        cam = 'CAM-04 (Bus Terminal Bay #2)';
+      }
+      avatar.setAttribute('transform', `translate(${x}, ${y})`);
+      if (badge) badge.innerText = `📹 ${cam}`;
+      if (title) title.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> LIVE OPTICAL CCTV RELAY FEED [${cam.split(' ')[0]}]`;
+    }
+
+    function resetSafeWalkSimulation() {
+      if (pSafeWalkTimer) clearInterval(pSafeWalkTimer);
+      pSafeWalkPct = 0;
+      updateSafeWalkAvatar(0);
+      const drone = document.getElementById('p-safewalk-drone');
+      if (drone) drone.classList.add('hidden');
+    }
+
+    function triggerSafeWalkThreat() {
+      if (pSafeWalkTimer) clearInterval(pSafeWalkTimer);
+      const drone = document.getElementById('p-safewalk-drone');
+      const hudBox = document.getElementById('p-safewalk-hud-box');
+      const title = document.getElementById('p-safewalk-hud-title');
+      if (drone) {
+        drone.classList.remove('hidden');
+        const avatar = document.getElementById('p-safewalk-avatar');
+        const tf = avatar ? avatar.getAttribute('transform') : 'translate(220, 120)';
+        drone.setAttribute('transform', tf);
+      }
+      if (title) {
+        title.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> <span class="text-rose-400">DRONE-01 AERIAL THERMAL SCAN (FLIR-IR)</span>`;
+      }
+      if (hudBox) {
+        hudBox.innerHTML = `
+          <div class="p-4 border-2 border-dashed border-rose-500 rounded-xl bg-rose-500/20 text-center animate-pulse">
+            <div class="text-2xl">🚨</div>
+            <div class="font-mono text-xs text-rose-300 font-bold">THREAT LOCK-ON: Priya Sharma [P-101]</div>
+            <div class="text-[10px] text-rose-200 font-mono">SECTOR 3 ANOMALY DETECTED • DRONE-01 HOVERING</div>
+          </div>
+        `;
+      }
+      playChimeSound();
     }
 
     function injectScenario(type) {

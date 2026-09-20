@@ -13,6 +13,7 @@ import MapPage from './pages/MapPage';
 import Reports from './pages/Reports';
 import Admin from './pages/Admin';
 import Settings from './pages/Settings';
+import SafeWalkPage from './pages/SafeWalkPage';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/safewalk" element={<SafeWalkPage />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/settings" element={<Settings />} />

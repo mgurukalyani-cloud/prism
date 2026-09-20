@@ -14,13 +14,15 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Sparkles
+  Sparkles,
+  Footprints
 } from 'lucide-react';
 
 export default function Sidebar({ isCollapsed, setIsCollapsed, userRole, onLogout, activeAlertsCount = 4 }) {
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/monitoring', label: 'AI Video Monitoring', icon: Video, highlight: true },
+    { to: '/safewalk', label: 'AI SafeWalk & Drone', icon: Footprints, badge: 'NEW', highlight: true },
     { to: '/children', label: 'People Registry', icon: Users },
     { to: '/events', label: 'Safety Events', icon: Activity },
     { to: '/alerts', label: 'Active Alerts', icon: Bell, badge: activeAlertsCount > 0 ? `${activeAlertsCount}` : undefined },
@@ -91,6 +93,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, userRole, onLogou
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shadow-xs ${
                       isActive 
                         ? 'bg-white text-indigo-700' 
+                        : item.badge === 'NEW'
+                        ? 'bg-emerald-600 text-white font-extrabold shadow-xs shadow-emerald-500/20'
                         : 'bg-rose-50 text-rose-700 border border-rose-200'
                     }`}>
                       {item.badge}

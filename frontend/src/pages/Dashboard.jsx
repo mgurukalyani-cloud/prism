@@ -23,7 +23,8 @@ import {
   CheckCheck,
   Sparkles,
   Clock,
-  RefreshCw
+  RefreshCw,
+  Footprints
 } from 'lucide-react';
 import {
   BarChart,
@@ -232,7 +233,15 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => navigate('/safewalk')}
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white rounded-lg shadow-sm shadow-emerald-500/20 flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <Footprints className="w-3.5 h-3.5" />
+            <span>AI SafeWalk & Drone</span>
+            <span className="bg-white/20 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black">NEW</span>
+          </button>
           <button
             onClick={() => navigate('/monitoring')}
             className="px-4 py-2 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 border border-slate-200 rounded-lg flex items-center gap-1.5 transition shadow-xs cursor-pointer"

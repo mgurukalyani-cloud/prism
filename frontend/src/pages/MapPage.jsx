@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import MapView from '../components/MapView';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SafeWalkPage from './SafeWalkPage';
 import { api } from '../services/api';
-import { MapPin, Shield, Filter, Eye, Layers } from 'lucide-react';
+import { MapPin, Shield, Filter, Eye, Layers, Footprints } from 'lucide-react';
 
 export default function MapPage() {
   const [childrenData, setChildrenData] = useState([]);
@@ -32,6 +33,7 @@ export default function MapPage() {
   }, []);
 
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [activeTab, setActiveTab] = useState('GEOFENCE'); // 'GEOFENCE' | 'SAFEWALK'
 
   const filteredChildren = childrenData.filter((c) => {
     const matchRisk = riskFilter === 'ALL' || c.risk_level === riskFilter;
@@ -41,25 +43,56 @@ export default function MapPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 uppercase">
-              📍 Hyderabad, Telangana – 500075
-            </span>
-            <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
-              Moinabad Road • Near TS Police Academy
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 mt-1">
-            <MapPin className="w-7 h-7 text-indigo-600" />
-            KLH Aziznagar Campus Safety Geofence Map
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Real-time geospatial monitoring of Children, Adults, and Senior Citizens across optical campus safety geofences.
-          </p>
-        </div>
+      {/* Mode Switcher Tabs */}
+      <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80 shadow-xs w-fit">
+        <button
+          onClick={() => setActiveTab('GEOFENCE')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            activeTab === 'GEOFENCE'
+              ? 'bg-white text-indigo-700 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <MapPin className="w-4 h-4" />
+          <span>Campus Geofence Overview</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('SAFEWALK')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            activeTab === 'SAFEWALK'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Footprints className="w-4 h-4" />
+          <span>AI SafeWalk & Drone Suite</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-white/20 text-white">NEW</span>
+        </button>
+      </div>
+
+      {activeTab === 'SAFEWALK' ? (
+        <SafeWalkPage />
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 uppercase">
+                  📍 Hyderabad, Telangana – 500075
+                </span>
+                <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                  Moinabad Road • Near TS Police Academy
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 mt-1">
+                <MapPin className="w-7 h-7 text-indigo-600" />
+                KLH Aziznagar Campus Safety Geofence Map
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+                Real-time geospatial monitoring of Children, Adults, and Senior Citizens across optical campus safety geofences.
+              </p>
+            </div>
 
         {/* Filter Bar */}
         <div className="flex items-center gap-2 flex-wrap">
@@ -128,6 +161,8 @@ export default function MapPage() {
           </p>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
